@@ -2,10 +2,12 @@ DOCKER_NAME = netopeer2-integration-test-env
 
 .PHONY: test build
 
-test build: build/docker_built
+test: build/docker_built
 	@echo Running $@
 
-build/docker_built: Dockerfile repo $(shell find repo -type f) $(shell find yang -type f)
+build: build/docker_built
+
+build/docker_built: Dockerfile repo $(shell find repo -type f) $(shell find yang -type f) $(shell find support -type f)
 	mkdir -p build
 	docker build -t $(DOCKER_NAME) .
 	touch $@

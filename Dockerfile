@@ -19,9 +19,12 @@ RUN apt-get update && \
         acl \
         python3-pytest \
         python3-pip \
-        supervisor
+        supervisor \
+        rsyslog \
+        openssh-server
 RUN pip3 install ncclient==0.5.4
 
+# Build the stack
 COPY repo/libyang /tmp/repo/libyang
 RUN cd /tmp/repo/libyang && \
     cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_BUILD_TESTS=Off -DENABLE_VALGRIND_TESTS=Off . && \
@@ -46,3 +49,8 @@ RUN cd /tmp/repo/Netopeer2/server && \
     make -j4 && \
     make install
 
+COPY yang /tmp/yang
+RUN cd /tmp/yang && python3 install.py
+
+COPY support/start-netopeer2-server /usr/bin/start-netopeer2-server
+COPY support/supervisord.conf /etc/supervisor/conf.d/netopeer2-stack.conf
