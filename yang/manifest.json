@@ -57,6 +57,7 @@
         "standard-models/ietf-l3-unicast-topology-state@2018-02-26.yang",
         "standard-models/ietf-l3vpn-svc@2018-01-19.yang",
         "standard-models/ietf-l3vpn-svc.yang",
+        "standard-models/ietf-system@2014-08-06.yang",
         "standard-models/ietf-lmap-common@2017-08-08.yang",
         "standard-models/ietf-lmap-control@2017-08-08.yang",
         "standard-models/ietf-lmap-report@2017-08-08.yang",

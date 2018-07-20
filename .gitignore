@@ -2,3 +2,5 @@
 /repo
 *.pyc
 __pycache__
+.cache
+.pytest_cache

@@ -1,15 +1,19 @@
 DOCKER_NAME = netopeer2-integration-test-env
+DOCKER_RUN = docker run -it --rm -v $(shell pwd):/local -v $(shell pwd)/build/log:/var/log -w /local/tests -e LC_ALL=C.UTF-8 -e LANG=C.UTF-8 $(DOCKER_NAME)
+
 
 .PHONY: test build
 
 test: build/docker_built
-	@echo Running $@
-	docker run -it --rm -v $(shell pwd):/local -w /local/tests $(DOCKER_NAME) py.test-3
+	$(DOCKER_RUN) py.test $(PYTEST_ARGS)
+
+format: build/docker_built
+	$(DOCKER_RUN) black .
 
 build: build/docker_built
 
-build/docker_built: Dockerfile repo $(shell find repo -type f) $(shell find yang -type f) $(shell find support -type f)
-	mkdir -p build
+build/docker_built: Dockerfile repo $(shell find repo -type f) $(shell find yang -type f) $(shell find support -type f) $(shell find test-service -type f)
+	mkdir -p build/log/supervisor
 	docker build -t $(DOCKER_NAME) .
 	touch $@
 
