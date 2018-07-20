@@ -2,13 +2,13 @@
 #include <unistd.h>
 #include <iostream>
 
-#define SR_TRY(x)                                                       \
-    do {                                                                \
-        int rc = x;                                                     \
-        if(rc != SR_ERR_OK) {                                           \
-            std::cerr << "sysrepo command failed: " << sr_strerror(rc); \
-            return rc;                                                  \
-        }                                                               \
+#define SR_TRY(x)                                                               \
+    do {                                                                        \
+        int rc = x;                                                             \
+        if(rc != SR_ERR_OK) {                                                   \
+            std::cerr << "sysrepo command failed: " << sr_strerror(rc) << "\n"; \
+            return rc;                                                          \
+        }                                                                       \
     } while(false)
 
 class SysrepoListener
@@ -47,7 +47,7 @@ private:
 
         for(sr_schema_t *schema = schemas; (size_t)(schema - schemas) < schemaCount; schema++)
         {
-            std::cerr << "Subscribing to module " << schema->module_name;
+            std::cerr << "Subscribing to module " << schema->module_name << "\n";
             if(sr_module_change_subscribe(m_session,
                                           schema->module_name,
                                           changeTrampoline,
@@ -56,11 +56,11 @@ private:
                                           SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED,
                                           &m_subscription))
             {
-                std::cerr << "Failed to subscribe to " << schema->module_name;
+                std::cerr << "Failed to subscribe to " << schema->module_name << "\n";
             }
             else
             {
-                std::cerr << "Subscribed to module " << schema->module_name;
+                std::cerr << "Subscribed to module " << schema->module_name << "\n";
             }
         }
         sr_free_schemas(schemas, schemaCount);
