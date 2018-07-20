@@ -4,6 +4,7 @@ DOCKER_NAME = netopeer2-integration-test-env
 
 test: build/docker_built
 	@echo Running $@
+	docker run -it --rm -v $(shell pwd):/local -w /local/tests $(DOCKER_NAME) py.test-3
 
 build: build/docker_built
 
