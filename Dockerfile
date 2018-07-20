@@ -24,7 +24,8 @@ RUN apt-get update && \
 RUN pip3 install \
     ncclient==0.5.4 \
     black==18.6b4 \
-    pytest==3.6.3
+    pytest==3.6.3 \
+    PyYAML==3.13
 
 # Build the stack
 COPY repo/libyang /tmp/repo/libyang
