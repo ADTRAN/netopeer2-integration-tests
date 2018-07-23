@@ -1,3 +1,6 @@
+"""
+Tests for leafref data validation
+"""
 import pytest
 from lxml import etree
 from ncclient.operations import RPCError

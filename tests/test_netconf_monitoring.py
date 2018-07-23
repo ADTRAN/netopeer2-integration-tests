@@ -1,7 +1,14 @@
+"""
+Tests for ietf-netconf-monitoring
+"""
 from common import NS_MAP
 
 
 def test_capabilities(mgr):
+    """
+    Verifies that the list of capabilities populated in the model matches the
+    list of capabilities in the <hello> message.
+    """
     r = get_netconf_state(mgr)
     capabilities_container = r.data_ele.xpath(
         "//nc-mon:capabilities", namespaces=NS_MAP
@@ -11,6 +18,9 @@ def test_capabilities(mgr):
 
 
 def test_sessions(mgr):
+    """
+    Verifies that the current session appears in the session list
+    """
     r = get_netconf_state(mgr)
 
     # Find this session first

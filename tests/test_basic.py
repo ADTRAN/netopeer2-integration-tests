@@ -1,8 +1,15 @@
+"""
+Tests to verify basic NETCONF functionality
+"""
 from common import change_contact, get_contact
 import event_log
 
 
 def test_basic_edit(mgr):
+    """
+    Verifies that a single leaf can be edited, and that the appropriate sysrepo
+    notifications are emitted
+    """
     event_log.clear()
 
     # Starts with no value
