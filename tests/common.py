@@ -28,6 +28,7 @@ def connect_mgr():
 NS_MAP = {
     "nc": "urn:ietf:params:xml:ns:netconf:base:1.0",
     "sys": "urn:ietf:params:xml:ns:yang:ietf-system",
+    "nc-mon": "urn:ietf:params:xml:ns:yang:ietf-netconf-monitoring",
 }
 
 
