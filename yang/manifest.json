@@ -79,5 +79,6 @@
         "test-models/test-referee.yang"
     ],
     "features": [
+        "bbf-fast:performance-24hr"
     ]
 }
