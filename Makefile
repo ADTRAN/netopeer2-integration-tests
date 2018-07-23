@@ -5,7 +5,7 @@ DOCKER_RUN = docker run -it --rm -v $(shell pwd):/local -v $(shell pwd)/build/lo
 .PHONY: test build
 
 test: build/docker_built
-	$(DOCKER_RUN) py.test $(PYTEST_ARGS)
+	$(DOCKER_RUN) py.test -vvl $(PYTEST_ARGS)
 
 format: build/docker_built
 	$(DOCKER_RUN) black .
