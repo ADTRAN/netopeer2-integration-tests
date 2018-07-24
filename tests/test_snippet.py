@@ -22,7 +22,7 @@ def test_snippet(mgr, snippet_file):
 
     response = snippet.xpath("//response")
     if response:
-        expected_response = response_c[0][0]
+        expected_response = response[0][0]
         actual_response = mgr.get_config(source="running").data_ele
         assert xml_to_dict(expected_response) == xml_to_dict(actual_response)
 
