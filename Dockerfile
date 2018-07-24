@@ -42,7 +42,7 @@ RUN cd /tmp/repo/libnetconf2 && \
 
 COPY repo/sysrepo /tmp/repo/sysrepo
 RUN cd /tmp/repo/sysrepo && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_TESTS=0 . && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_TESTS=0 -DBUILD_EXAMPLES=0 . && \
     make -j4 && \
     make install
 

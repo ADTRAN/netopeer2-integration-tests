@@ -66,3 +66,24 @@ def get_contact(mgr):
         return "Not Present"
     else:
         return node[0].text
+
+
+def xml_to_dict(root):
+    """Converts an lxml tree to a dictionary for easier comparison"""
+    children = root.getchildren()
+    if not children:
+        return root.text
+
+    d = {}
+    for child in children:
+        name = child.tag
+        converted = xml_to_dict(child)
+        if name not in d:
+            d[name] = converted
+        else:
+            if not isinstance(d[name], list):
+                d[name] = [d[name], converted]
+            else:
+                d[name].append(converted)
+
+    return d

@@ -1,6 +1,7 @@
 DOCKER_NAME = netopeer2-integration-test-env
 DOCKER_RUN = docker run -it --rm -v $(shell pwd):/local -v $(shell pwd)/build/log:/var/log -w /local/tests -e LC_ALL=C.UTF-8 -e LANG=C.UTF-8 $(DOCKER_NAME)
 
+PYTEST_ARGS ?= -x
 
 .PHONY: test build
 
