@@ -61,3 +61,6 @@ RUN g++ -g -o /usr/bin/test-service /tmp/test-service/*.cpp -lsysrepo
 COPY support/start-netopeer2-server /usr/bin/start-netopeer2-server
 COPY support/start-test-service /usr/bin/start-test-service
 COPY support/supervisord.conf /etc/supervisor/conf.d/netopeer2-stack.conf
+
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
