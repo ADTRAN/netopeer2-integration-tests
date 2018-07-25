@@ -25,3 +25,9 @@ repo:
 	    git clone -b devel https://github.com/CESNET/libnetconf2.git && \
 	    git clone -b devel https://github.com/sysrepo/sysrepo.git && \
 	    git clone -b devel-server https://github.com/CESNET/Netopeer2.git
+	@echo
+	@echo libyang revision: $$(cd repo/libyang && git rev-parse HEAD)
+	@echo libnetconf2 revision: $$(cd repo/libnetconf2 && git rev-parse HEAD)
+	@echo sysrepo revision: $$(cd repo/sysrepo && git rev-parse HEAD)
+	@echo Netopeer2 revision: $$(cd repo/Netopeer2 && git rev-parse HEAD)
+	@echo
