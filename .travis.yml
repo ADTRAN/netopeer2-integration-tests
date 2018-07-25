@@ -1,0 +1,10 @@
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - sudo apt-get install -y git make
+
+script:
+  - make test
