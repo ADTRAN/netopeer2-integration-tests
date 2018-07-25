@@ -1,5 +1,7 @@
 # Netopeer2 Integration Tests
 
+[![Build Status](https://travis-ci.org/ADTRAN/netopeer2-integration-tests.svg?branch=master)](https://travis-ci.org/ADTRAN/netopeer2-integration-tests)
+
 This repository contains several tests that run against the Netopeer2
 NETCONF server. The goal is to test the entire stack of software all
 running together, as it would in a real deployment.
