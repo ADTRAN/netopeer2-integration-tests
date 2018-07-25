@@ -7,4 +7,5 @@ before_install:
   - sudo apt-get install -y git make
 
 script:
+  - make build
   - make test
