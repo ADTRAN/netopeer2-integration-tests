@@ -20,12 +20,21 @@ RUN apt-get update && \
         python3-pip \
         supervisor \
         rsyslog \
-        openssh-server
+        openssh-server \
+        rapidjson-dev
 RUN pip3 install \
     ncclient==0.5.4 \
     black==18.6b4 \
     pytest==3.6.3 \
-    PyYAML==3.13
+    PyYAML==3.13 \
+    requests==2.19.1
+RUN cd /tmp && \
+    git clone --recursive https://github.com/oktal/pistache.git && \
+    mkdir pistache/build && \
+    cd pistache/build && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr .. && \
+    make -j4 && \
+    make install
 
 # Build the stack
 COPY repo/libyang /tmp/repo/libyang
@@ -56,7 +65,7 @@ COPY yang /tmp/yang
 RUN cd /tmp/yang && python3 install.py
 
 COPY test-service /tmp/test-service
-RUN g++ -g -o /usr/bin/test-service /tmp/test-service/*.cpp -lsysrepo
+RUN g++ -g -o /usr/bin/test-service /tmp/test-service/*.cpp -lsysrepo -lpistache -pthread
 
 COPY support/start-netopeer2-server /usr/bin/start-netopeer2-server
 COPY support/start-test-service /usr/bin/start-test-service

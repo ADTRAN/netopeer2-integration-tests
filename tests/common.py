@@ -1,5 +1,6 @@
 import time
 
+import requests
 from ncclient.manager import connect_ssh
 
 
@@ -31,6 +32,7 @@ NS_MAP = {
     "nc-mon": "urn:ietf:params:xml:ns:yang:ietf-netconf-monitoring",
     "test-referer": "http://example.com/netopeer2-integration-tests/test-referer",
     "test-referee": "http://example.com/netopeer2-integration-tests/test-referee",
+    "ietf-hw": "urn:ietf:params:xml:ns:yang:ietf-hardware",
 }
 
 
@@ -87,3 +89,9 @@ def xml_to_dict(root):
                 d[name].append(converted)
 
     return d
+
+
+def send_notification(notification):
+    assert requests.post(
+        "http://localhost:9080/send-notification", json=notification
+    ).ok

@@ -6,6 +6,15 @@
 #include <string>
 #include <sstream>
 
+#include <pistache/http.h>
+#include <pistache/router.h>
+#include <pistache/endpoint.h>
+
+#include <rapidjson/rapidjson.h>
+#include <rapidjson/document.h>
+#include <rapidjson/error/en.h>
+#include <rapidjson/error/error.h>
+
 #define SR_TRY(x)                                                               \
     do {                                                                        \
         int rc = x;                                                             \
@@ -56,6 +65,67 @@ public:
         sysrepoConnect();
         subscribeToAll();
     }
+
+    void sendNotification(const Pistache::Rest::Request &request,
+                          Pistache::Http::ResponseWriter response)
+    {
+        rapidjson::Document d;
+        rapidjson::ParseResult parseResult = d.Parse(request.body().c_str());
+        if(!parseResult)
+        {
+            std::ostringstream oss;
+            oss << "Failed to parse JSON document: " << GetParseError_En(parseResult.Code());
+            response.send(Pistache::Http::Code::Bad_Request, oss.str());
+            return;
+        }
+
+        if(!d.HasMember("xpath"))
+        {
+            response.send(Pistache::Http::Code::Bad_Request, "Missing xpath field");
+            return;
+        }
+
+        if(!d.HasMember("values"))
+        {
+            response.send(Pistache::Http::Code::Bad_Request, "Missing values field");
+            return;
+        }
+
+        const auto &parsedValues = d["values"];
+
+        sr_val_t *values;
+        int valueCount = parsedValues.Size();
+        sr_new_values(valueCount, &values);
+        bool error = false;
+        for(int i = 0; i < valueCount; ++i)
+        {
+            if(!parsedValues[i].HasMember("xpath"))
+            {
+                response.send(Pistache::Http::Code::Bad_Request, "Missing xpath field");
+                error = true;
+            }
+
+            if(!parsedValues[i].HasMember("value"))
+            {
+                response.send(Pistache::Http::Code::Bad_Request, "Missing value field");
+                error = true;
+            }
+
+            sr_val_set_xpath(values + i, parsedValues[i]["xpath"].GetString());
+            sr_val_set_str_data(values + i, SR_STRING_T, parsedValues[i]["value"].GetString());
+        }
+        sr_free_values(values, valueCount);
+
+        int ret = sr_event_notif_send(m_session, d["xpath"].GetString(), values, valueCount, SR_EV_NOTIF_DEFAULT);
+        if(ret != SR_ERR_OK)
+        {
+            response.send(Pistache::Http::Code::Bad_Request, "Failed to send request to sysrepo");
+        }
+        else if(!error)
+        {
+            response.send(Pistache::Http::Code::Ok, "Notification sent");
+        }
+    }
 private:
     void sysrepoConnect()
     {
@@ -101,6 +171,7 @@ private:
             }
         }
         sr_free_schemas(schemas, schemaCount);
+
         return SR_ERR_OK;
     }
 
@@ -169,6 +240,14 @@ int main(int, char**)
 {
     SysrepoListener l;
     l.listen();
+
+    Pistache::Rest::Router router;
+    Pistache::Rest::Routes::Post(router, "/send-notification",
+                                 Pistache::Rest::Routes::bind(&SysrepoListener::sendNotification, &l));
+    Pistache::Http::Endpoint endpoint("*:9080");
+    endpoint.init(Pistache::Http::Endpoint::options().threads(1));
+    endpoint.setHandler(router.handler());
+    endpoint.serve();
 
     while(true)
     {
