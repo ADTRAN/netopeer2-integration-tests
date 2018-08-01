@@ -114,9 +114,9 @@ public:
             sr_val_set_xpath(values + i, parsedValues[i]["xpath"].GetString());
             sr_val_set_str_data(values + i, SR_STRING_T, parsedValues[i]["value"].GetString());
         }
-        sr_free_values(values, valueCount);
 
         int ret = sr_event_notif_send(m_session, d["xpath"].GetString(), values, valueCount, SR_EV_NOTIF_DEFAULT);
+        sr_free_values(values, valueCount);
         if(ret != SR_ERR_OK)
         {
             response.send(Pistache::Http::Code::Bad_Request, "Failed to send request to sysrepo");
