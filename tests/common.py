@@ -92,6 +92,7 @@ def xml_to_dict(root):
 
 
 def send_notification(notification):
-    assert requests.post(
+    result = requests.post(
         "http://localhost:9080/send-notification", json=notification
-    ).ok
+    )
+    assert result.ok

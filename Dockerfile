@@ -65,7 +65,10 @@ COPY yang /tmp/yang
 RUN cd /tmp/yang && python3 install.py
 
 COPY test-service /tmp/test-service
-RUN g++ -g -o /usr/bin/test-service /tmp/test-service/*.cpp -lsysrepo -lpistache -pthread
+RUN cd /tmp/test-service && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr . && \
+    make -j4 && \
+    make install
 
 COPY support/start-netopeer2-server /usr/bin/start-netopeer2-server
 COPY support/start-test-service /usr/bin/start-test-service
