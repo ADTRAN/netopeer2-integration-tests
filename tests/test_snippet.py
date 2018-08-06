@@ -17,16 +17,24 @@ def test_snippet(mgr, snippet_file):
 
     snippet = etree.parse(snippet_file)
 
-    edit = snippet.xpath("//edit")[0][0]
-    mgr.edit_config(target="running", config=edit)
+    xfail = snippet.xpath("//xfail")
 
-    response = snippet.xpath("//response")
-    if response:
-        expected_response = response[0][0]
-        actual_response = mgr.get_config(source="running").data_ele
-        assert xml_to_dict(expected_response) == xml_to_dict(actual_response)
+    try:
+        edit = snippet.xpath("//edit")[0][0]
+        mgr.edit_config(target="running", config=edit)
 
-    cleanup = snippet.xpath("//cleanup")[0][0]
-    mgr.edit_config(target="running", config=cleanup)
+        response = snippet.xpath("//response")
+        if response:
+            expected_response = response[0][0]
+            actual_response = mgr.get_config(source="running").data_ele
+            assert xml_to_dict(expected_response) == xml_to_dict(actual_response)
 
-    assert len(mgr.get_config(source="running").data_ele) == 0
+        cleanup = snippet.xpath("//cleanup")[0][0]
+        mgr.edit_config(target="running", config=cleanup)
+
+        assert len(mgr.get_config(source="running").data_ele) == 0
+    except:
+        if xfail:
+            pytest.xfail('Snippet failed, but marked with xfail')
+        else:
+            raise
