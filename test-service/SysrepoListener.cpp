@@ -1,9 +1,12 @@
 #include "SysrepoListener.hpp"
 
+#include <sysrepo/xpath.h>
+
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <string.h>
 #include <unistd.h>
 
 #define SR_TRY(x)                                                       \
@@ -155,4 +158,81 @@ int SysrepoListener::handleChanges(sr_session_ctx_t *session,
     sr_free_change_iter(iter);
 
     return SR_ERR_OK;
+}
+
+
+bool SysrepoListener::subscribeForAction(const char *xpath)
+{
+    std::string key(xpath);
+    if(m_subscribedActions.find(key) != m_subscribedActions.end())
+    {
+        // Already subscribed
+        return true;
+    }
+
+    if(sr_action_subscribe(m_session,
+                           xpath,
+                           &SysrepoListener::actionTrampoline,
+                           (void*)this,
+                           SR_SUBSCR_CTX_REUSE,
+                           &m_subscription) != SR_ERR_OK)
+    {
+        return false;
+    }
+
+    m_subscribedActions.insert(key);
+    return true;
+}
+
+static std::string xpathToSchemaPath(const char *xpath)
+{
+    char *mutableXpath = strdup(xpath);
+    sr_xpath_ctx_t ctx;
+    bzero(&ctx, sizeof(ctx));
+    std::ostringstream oss;
+
+    for(char *node = sr_xpath_next_node_with_ns(mutableXpath, &ctx);
+        node;
+        node = sr_xpath_next_node(nullptr, &ctx))
+    {
+        oss << "/" << node;
+    }
+    std::free(mutableXpath);
+    return oss.str();
+}
+
+void SysrepoListener::setActionValues(const char *xpath, std::unique_ptr<SysrepoValues> &&values)
+{
+    std::string schema(xpathToSchemaPath(xpath));
+    m_actionValues[schema] = std::move(values);
+}
+
+int SysrepoListener::actionTrampoline(const char *xpath,
+                                      const sr_val_t *input,
+                                      const size_t input_cnt,
+                                      sr_val_t **output,
+                                      size_t *output_cnt,
+                                      void *data)
+{
+    return ((SysrepoListener*)data)->handleAction(xpath, input, input_cnt, output, output_cnt);
+}
+
+
+int SysrepoListener::handleAction(const char *xpath,
+                                  const sr_val_t *input,
+                                  const size_t input_cnt,
+                                  sr_val_t **output,
+                                  size_t *output_cnt)
+{
+    std::string schemaPath(xpathToSchemaPath(xpath));
+
+    auto values = m_actionValues.find(schemaPath);
+    if(values == m_actionValues.end())
+    {
+        std::cerr << "Unexpected action at XPath " << xpath << " (schema path " << schemaPath << ")\n";
+        return SR_ERR_INTERNAL;
+    }
+
+    sr_dup_values(values->second->values, values->second->valueCount, output);
+    *output_cnt = values->second->valueCount;
 }

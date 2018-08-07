@@ -1,5 +1,5 @@
 DOCKER_NAME = netopeer2-integration-test-env
-DOCKER_RUN = docker run -it --rm -v $(shell pwd):/local -v $(shell pwd)/build/log:/var/log -w /local/tests $(DOCKER_NAME)
+DOCKER_RUN = docker run -it --rm -v $(shell pwd):/local -v $(shell pwd)/build/log:/var/log -w /local/tests --privileged $(DOCKER_NAME)
 
 PYTEST_ARGS ?= -x
 

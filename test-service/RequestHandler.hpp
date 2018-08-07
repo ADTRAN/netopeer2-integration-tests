@@ -17,22 +17,13 @@ public:
 
     void sendNotification(const Pistache::Rest::Request &request,
                           Pistache::Http::ResponseWriter response);
+    void setActionReply(const Pistache::Rest::Request &request,
+                        Pistache::Http::ResponseWriter response);
 private:
     Pistache::Http::Endpoint m_endpoint;
     Pistache::Rest::Router m_router;
 
-    SysrepoListener m_sysrepo;
-};
-
-struct SysrepoValues
-{
-    sr_val_t *values;
-    size_t valueCount;
-
-    inline ~SysrepoValues()
-    {
-        sr_free_values(values, valueCount);
-    }
+    SysrepoListener &m_sysrepo;
 };
 
 std::unique_ptr<SysrepoValues> parseValueList(const rapidjson::Value &parsedValues);

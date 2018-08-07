@@ -32,6 +32,8 @@ NS_MAP = {
     "nc-mon": "urn:ietf:params:xml:ns:yang:ietf-netconf-monitoring",
     "test-referer": "http://example.com/netopeer2-integration-tests/test-referer",
     "test-referee": "http://example.com/netopeer2-integration-tests/test-referee",
+    "test-actions": "http://example.com/netopeer2-integration-tests/test-actions",
+    "test-actions-aug": "http://example.com/netopeer2-integration-tests/test-actions-augment",
     "ietf-hw": "urn:ietf:params:xml:ns:yang:ietf-hardware",
 }
 
@@ -92,7 +94,10 @@ def xml_to_dict(root):
 
 
 def send_notification(notification):
-    result = requests.post(
-        "http://localhost:9080/send-notification", json=notification
-    )
+    result = requests.post("http://localhost:9080/send-notification", json=notification)
+    assert result.ok
+
+
+def set_action_reply(action):
+    result = requests.post("http://localhost:9080/set-action-reply", json=action)
     assert result.ok

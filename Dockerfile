@@ -39,25 +39,25 @@ RUN cd /tmp && \
 # Build the stack
 COPY repo/libyang /tmp/repo/libyang
 RUN cd /tmp/repo/libyang && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_BUILD_TESTS=Off -DENABLE_VALGRIND_TESTS=Off . && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DENABLE_BUILD_TESTS=Off -DENABLE_VALGRIND_TESTS=Off . && \
     make -j4 && \
     make install
 
 COPY repo/libnetconf2 /tmp/repo/libnetconf2
 RUN cd /tmp/repo/libnetconf2 && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_BUILD_TESTS=Off -DENABLE_VALGRIND_TESTS=Off . && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DENABLE_BUILD_TESTS=Off -DENABLE_VALGRIND_TESTS=Off . && \
     make -j4 && \
     make install
 
 COPY repo/sysrepo /tmp/repo/sysrepo
 RUN cd /tmp/repo/sysrepo && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_TESTS=0 -DBUILD_EXAMPLES=0 . && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DENABLE_TESTS=0 -DBUILD_EXAMPLES=0 . && \
     make -j4 && \
     make install
 
 COPY repo/Netopeer2 /tmp/repo/Netopeer2
 RUN cd /tmp/repo/Netopeer2/server && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_BUILD_TESTS=Off -DENABLE_VALGRIND_TESTS=Off . && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DENABLE_BUILD_TESTS=Off -DENABLE_VALGRIND_TESTS=Off . && \
     make -j4 && \
     make install
 
@@ -66,7 +66,7 @@ RUN cd /tmp/yang && python3 install.py
 
 COPY test-service /tmp/test-service
 RUN cd /tmp/test-service && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr . && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug . && \
     make -j4 && \
     make install
 

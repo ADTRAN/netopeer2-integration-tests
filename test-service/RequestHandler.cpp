@@ -5,12 +5,16 @@
 #include <rapidjson/error/en.h>
 #include <rapidjson/error/error.h>
 
+#include <utility>
+
 RequestHandler::RequestHandler(SysrepoListener &sysrepo)
     : m_endpoint("*:9080")
     , m_sysrepo(sysrepo)
 {
     Pistache::Rest::Routes::Post(m_router, "/send-notification",
                                  Pistache::Rest::Routes::bind(&RequestHandler::sendNotification, this));
+    Pistache::Rest::Routes::Post(m_router, "/set-action-reply",
+                                 Pistache::Rest::Routes::bind(&RequestHandler::setActionReply, this));
     m_endpoint.init(Pistache::Http::Endpoint::options().threads(1));
     m_endpoint.setHandler(m_router.handler());
     m_endpoint.serve();
@@ -41,6 +45,25 @@ void RequestHandler::sendNotification(const Pistache::Rest::Request &request,
                                   values->values, values->valueCount,
                                   SR_EV_NOTIF_DEFAULT);
     TRY_OR_BAD_REQ(ret == SR_ERR_OK, "Failed to send request to sysrepo");
+
+    response.send(Pistache::Http::Code::Ok, "");
+}
+
+void RequestHandler::setActionReply(const Pistache::Rest::Request &request,
+                                      Pistache::Http::ResponseWriter response)
+{
+
+    rapidjson::Document d;
+    rapidjson::ParseResult parseResult = d.Parse(request.body().c_str());
+    TRY_OR_BAD_REQ(parseResult, "Failed to parse JSON document: " << GetParseError_En(parseResult.Code()));
+    TRY_OR_BAD_REQ(d.HasMember("xpath"), "Missing xpath field");
+    TRY_OR_BAD_REQ(d.HasMember("values"), "Missing values field");
+
+    auto values = parseValueList(d["values"]);
+    TRY_OR_BAD_REQ(values, "Failed to parse value list");
+
+    TRY_OR_BAD_REQ(m_sysrepo.subscribeForAction(d["xpath"].GetString()), "Failed to subscribe to action");
+    m_sysrepo.setActionValues(d["xpath"].GetString(), std::move(values));
 
     response.send(Pistache::Http::Code::Ok, "");
 }
