@@ -54,7 +54,6 @@ def test_action_in_config_container(mgr, cleanup):
 #     assert r == "TestOutput3"
 
 
-@pytest.mark.xfail()
 def test_action_in_augment(mgr, cleanup):
     set_action_reply(
         {
@@ -72,7 +71,6 @@ def test_action_in_augment(mgr, cleanup):
     assert r == "TestOutput4"
 
 
-@pytest.mark.xfail()
 def test_action_in_augmented_list(mgr, cleanup):
     set_action_reply(
         {
