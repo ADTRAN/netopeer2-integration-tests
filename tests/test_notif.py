@@ -225,7 +225,7 @@ def test_embedded_notification_container(mgr, notification_cleanup):
     assert get_test_notification_container_notification_string(mgr) == "Not Found"
 
 
-@pytest.mark.xfail(strict=True)
+@pytest.mark.xfail
 def test_embedded_notification_list_one_item(mgr, notification_cleanup):
     mgr.dispatch(
         to_ele(
@@ -261,7 +261,7 @@ def test_embedded_notification_list_one_item(mgr, notification_cleanup):
     assert get_notification_list(mgr) == {}
 
 
-@pytest.mark.xfail(strict=True)
+@pytest.mark.xfail
 def test_embedded_notification_list_two_items(mgr, notification_cleanup):
     mgr.dispatch(
         to_ele(
@@ -313,7 +313,7 @@ def test_embedded_notification_list_two_items(mgr, notification_cleanup):
     assert get_notification_list(mgr) == {}
 
 
-@pytest.mark.xfail(strict=True)
+@pytest.mark.xfail
 def test_embedded_notification_list_insert_and_delete(mgr, notification_cleanup):
     mgr.dispatch(
         to_ele(
@@ -433,7 +433,7 @@ def test_embedded_notification_list_insert_and_delete(mgr, notification_cleanup)
         )
 
 
-@pytest.mark.xfail(strict=True)
+@pytest.mark.xfail
 def test_embedded_notification_list_in_list(mgr, notification_cleanup):
     mgr.dispatch(
         to_ele(
