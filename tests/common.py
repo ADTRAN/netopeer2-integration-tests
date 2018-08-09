@@ -1,4 +1,7 @@
 import time
+import syslog
+import time
+from lxml import etree
 
 import requests
 from ncclient.manager import connect_ssh
@@ -32,6 +35,9 @@ NS_MAP = {
     "nc-mon": "urn:ietf:params:xml:ns:yang:ietf-netconf-monitoring",
     "test-referer": "http://example.com/netopeer2-integration-tests/test-referer",
     "test-referee": "http://example.com/netopeer2-integration-tests/test-referee",
+    "test-notification": "http://www.example.com/ns/yang/test-notifications",
+    "notif": "urn:ietf:params:xml:ns:netconf:notification:1.0",
+    "nc-notif": "urn:ietf:params:xml:ns:yang:ietf-netconf-notifications",
     "test-actions": "http://example.com/netopeer2-integration-tests/test-actions",
     "test-actions-aug": "http://example.com/netopeer2-integration-tests/test-actions-augment",
     "ietf-hw": "urn:ietf:params:xml:ns:yang:ietf-hardware",
@@ -101,3 +107,189 @@ def send_notification(notification):
 def set_action_reply(action):
     result = requests.post("http://localhost:9080/set-action-reply", json=action)
     assert result.ok
+
+
+def find_single_xpath(data_xml, xpath):
+    doc = etree.fromstring(data_xml.encode("utf-8"))
+    results = doc.xpath(xpath, namespaces=NS_MAP)
+    if len(results) > 0:
+        return results[0].text
+    else:
+        return "Not Found"
+
+
+def get_test_notification_simple_string_from_data_xml(data_xml):
+    return find_single_xpath(
+        data_xml,
+        "/nc:data/test-notification:string-container/test-notification:simple-string",
+    )
+
+
+def get_test_notification_simple_string(mgr):
+    return get_test_notification_simple_string_from_data_xml(mgr.get().data_xml)
+
+
+def get_test_notification_container_notification_string(mgr):
+    return find_single_xpath(
+        mgr.get().data_xml,
+        ("/nc:data/test-notification:notification-from-container"
+         "/test-notification:notification-string"),
+    )
+
+
+def get_notification_list(mgr):
+    data_xml = mgr.get().data_xml
+    doc = etree.fromstring(data_xml.encode("utf-8"))
+    results = doc.xpath(
+        ("/nc:data/test-notification:notification-from-list"
+         "/test-notification:notification-from-list"),
+        namespaces=NS_MAP,
+    )
+
+    ret = {}
+    for entry in results:
+        key = entry.find("{http://www.example.com/ns/yang/test-notifications}name")
+        foo = entry.find("{http://www.example.com/ns/yang/test-notifications}foo")
+
+        ret[key.text] = {"foo": foo.text}
+
+    return ret
+
+
+def get_embedded_list(mgr):
+    data_xml = mgr.get().data_xml
+    doc = etree.fromstring(data_xml.encode("utf-8"))
+    results = doc.xpath(
+        ("/nc:data/test-notification:notification-from-list"
+         "/test-notification:notification-from-list"),
+        namespaces=NS_MAP,
+    )
+
+    ret = {}
+    for entry in results:
+        key = entry.find("{http://www.example.com/ns/yang/test-notifications}name")
+        item = entry.find(
+            "{http://www.example.com/ns/yang/test-notifications}embedded-list"
+        )
+        if item is not None:
+            key2 = item.find("{http://www.example.com/ns/yang/test-notifications}name")
+            item2 = item.find(
+                "{http://www.example.com/ns/yang/test-notifications}embedded-foo"
+            )
+            ret[key.text] = {key2.text: item2.text}
+
+    return ret
+
+
+def set_test_notification_simple_string(
+    mgr, message, target="running", test_option=None
+):
+    mgr.edit_config(
+        target=target,
+        test_option=test_option,
+        config="""
+<config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <string-container xmlns="http://www.example.com/ns/yang/test-notifications">
+        <simple-string>{}</simple-string>
+    </string-container>
+</config>
+        """.format(
+            message
+        ),
+    )
+
+
+def set_test_notification_container_notification_string(mgr, message, target="running"):
+    mgr.edit_config(
+        target=target,
+        config="""
+<config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <notification-from-container xmlns="http://www.example.com/ns/yang/test-notifications">
+        <notification-string>{}</notification-string>
+    </notification-from-container>
+</config>
+        """.format(
+            message
+        ),
+    )
+
+
+def set_notification_list_item(mgr, key, foo, error_option=None):
+    mgr.edit_config(
+        target="running",
+        error_option=error_option,
+        config="""
+<config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <notification-from-list xmlns="http://www.example.com/ns/yang/test-notifications">
+        <notification-from-list>
+            <name>{}</name>
+            <foo>{}</foo>
+        </notification-from-list>
+    </notification-from-list>
+</config>
+    """.format(
+            key, foo
+        ),
+    )
+
+
+def set_embedded_list_item(mgr, key1, key2, foo, error_option=None):
+    mgr.edit_config(
+        target="running",
+        error_option=error_option,
+        config="""
+<config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <notification-from-list xmlns="http://www.example.com/ns/yang/test-notifications">
+        <notification-from-list>
+            <name>{}</name>
+            <embedded-list>
+                <name>{}</name>
+                <embedded-foo>{}</embedded-foo>
+            </embedded-list>
+        </notification-from-list>
+    </notification-from-list>
+</config>
+    """.format(
+            key1, key2, foo
+        ),
+    )
+
+
+def clear_test_notification_simple_string(mgr, datastore="running"):
+    mgr.edit_config(
+        target=datastore,
+        config="""
+<nc:config xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <string-container xmlns="http://www.example.com/ns/yang/test-notifications">
+        <simple-string nc:operation="delete" />
+    </string-container>
+</nc:config>""",
+    )
+
+
+def clear_test_notification_container_notification_string(mgr, datastore="running"):
+    mgr.edit_config(
+        target=datastore,
+        config="""
+<nc:config xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <notification-from-container xmlns="http://www.example.com/ns/yang/test-notifications">
+        <notification-string nc:operation="delete" />
+    </notification-from-container>
+</nc:config>""",
+    )
+
+
+def clear_notification_list_item(mgr, name):
+    mgr.edit_config(
+        target="running",
+        config="""
+<nc:config xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <notification-from-list xmlns="http://www.example.com/ns/yang/test-notifications">
+        <notification-from-list nc:operation="delete">
+            <name>{}</name>
+        </notification-from-list>
+    </notification-from-list>
+</nc:config>""".format(
+            name
+        ),
+    )
