@@ -132,8 +132,10 @@ def get_test_notification_simple_string(mgr):
 def get_test_notification_container_notification_string(mgr):
     return find_single_xpath(
         mgr.get().data_xml,
-        ("/nc:data/test-notification:notification-from-container"
-         "/test-notification:notification-string"),
+        (
+            "/nc:data/test-notification:notification-from-container"
+            "/test-notification:notification-string"
+        ),
     )
 
 
@@ -141,8 +143,10 @@ def get_notification_list(mgr):
     data_xml = mgr.get().data_xml
     doc = etree.fromstring(data_xml.encode("utf-8"))
     results = doc.xpath(
-        ("/nc:data/test-notification:notification-from-list"
-         "/test-notification:notification-from-list"),
+        (
+            "/nc:data/test-notification:notification-from-list"
+            "/test-notification:notification-from-list"
+        ),
         namespaces=NS_MAP,
     )
 
@@ -160,8 +164,10 @@ def get_embedded_list(mgr):
     data_xml = mgr.get().data_xml
     doc = etree.fromstring(data_xml.encode("utf-8"))
     results = doc.xpath(
-        ("/nc:data/test-notification:notification-from-list"
-         "/test-notification:notification-from-list"),
+        (
+            "/nc:data/test-notification:notification-from-list"
+            "/test-notification:notification-from-list"
+        ),
         namespaces=NS_MAP,
     )
 

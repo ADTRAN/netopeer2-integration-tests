@@ -1,18 +1,16 @@
-#include "SysrepoListener.hpp"
 #include "RequestHandler.hpp"
+#include "SysrepoListener.hpp"
 
 #include <unistd.h>
 
-int main(int, char**)
-{
-    SysrepoListener l;
-    l.listen();
+int main(int, char **) {
+  SysrepoListener l;
+  l.listen();
 
-    RequestHandler handler(l);
+  RequestHandler handler(l);
 
-    while(true)
-    {
-        pause();
-    }
-    return 0;
+  while (true) {
+    pause();
+  }
+  return 0;
 }

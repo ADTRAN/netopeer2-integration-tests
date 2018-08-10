@@ -35,6 +35,6 @@ def test_snippet(mgr, snippet_file):
         assert len(mgr.get_config(source="running").data_ele) == 0
     except:
         if xfail:
-            pytest.xfail('Snippet failed, but marked with xfail')
+            pytest.xfail("Snippet failed, but marked with xfail")
         else:
             raise

@@ -49,9 +49,9 @@ def generate_test_notification_simple_string_notif(value):
             "values": [
                 {
                     "xpath": (
-                                "/test-notifications:string-container-simple-string-changed"
-                                "/test-notifications:new-value"
-                             ),
+                        "/test-notifications:string-container-simple-string-changed"
+                        "/test-notifications:new-value"
+                    ),
                     "value": value,
                 }
             ],
@@ -63,16 +63,16 @@ def generate_test_notification_container_string_notif(value):
     send_notification(
         {
             "xpath": (
-                        "/test-notifications:notification-from-container"
-                        "/test-notifications:container-notification-string-changed"
-                     ),
+                "/test-notifications:notification-from-container"
+                "/test-notifications:container-notification-string-changed"
+            ),
             "values": [
                 {
                     "xpath": (
-                                "/test-notifications:notification-from-container"
-                                "/test-notifications:container-notification-string-changed"
-                                "/test-notifications:new-value"
-                             ),
+                        "/test-notifications:notification-from-container"
+                        "/test-notifications:container-notification-string-changed"
+                        "/test-notifications:new-value"
+                    ),
                     "value": value,
                 }
             ],
@@ -84,18 +84,18 @@ def generate_test_notification_list_foo_string_notif(key, value):
     send_notification(
         {
             "xpath": (
-                        "/test-notifications:notification-from-list"
-                        "/test-notifications:notification-from-list[name='{}']"
-                        "/test-notifications:list-foo-changed"
-                     ).format(key),
+                "/test-notifications:notification-from-list"
+                "/test-notifications:notification-from-list[name='{}']"
+                "/test-notifications:list-foo-changed"
+            ).format(key),
             "values": [
                 {
                     "xpath": (
-                                "/test-notifications:notification-from-list"
-                                "/test-notifications:notification-from-list[name='{}']"
-                                "/test-notifications:list-foo-changed"
-                                "/test-notifications:new-value"
-                             ).format(key),
+                        "/test-notifications:notification-from-list"
+                        "/test-notifications:notification-from-list[name='{}']"
+                        "/test-notifications:list-foo-changed"
+                        "/test-notifications:new-value"
+                    ).format(key),
                     "value": value,
                 }
             ],
@@ -107,20 +107,20 @@ def generate_test_notification_embedded_list_string_notif(key1, key2, value):
     send_notification(
         {
             "xpath": (
+                "/test-notifications:notification-from-list"
+                "/test-notifications:notification-from-list[name='{}']"
+                "/test-notifications:embedded-list[name='{}']"
+                "/test-notifications:embedded-foo-changed"
+            ).format(key1, key2),
+            "values": [
+                {
+                    "xpath": (
                         "/test-notifications:notification-from-list"
                         "/test-notifications:notification-from-list[name='{}']"
                         "/test-notifications:embedded-list[name='{}']"
                         "/test-notifications:embedded-foo-changed"
-                     ).format(key1, key2),
-            "values": [
-                {
-                    "xpath": (
-                                "/test-notifications:notification-from-list"
-                                "/test-notifications:notification-from-list[name='{}']"
-                                "/test-notifications:embedded-list[name='{}']"
-                                "/test-notifications:embedded-foo-changed"
-                                "/test-notifications:new-value"
-                             ).format(key1, key2),
+                        "/test-notifications:new-value"
+                    ).format(key1, key2),
                     "value": value,
                 }
             ],
@@ -185,9 +185,11 @@ def test_service_generated_notification(mgr, notification_cleanup):
     generate_test_notification_simple_string_notif("Notification Message")
     results = find_notifications_matching(
         mgr,
-        ("/notif:notification"
-         "/test-notification:string-container-simple-string-changed"
-         "/test-notification:new-value"),
+        (
+            "/notif:notification"
+            "/test-notification:string-container-simple-string-changed"
+            "/test-notification:new-value"
+        ),
     )
     assert results[0].text == "Notification Message"
 
@@ -215,10 +217,12 @@ def test_embedded_notification_container(mgr, notification_cleanup):
     generate_test_notification_container_string_notif("Container Notification")
     results = find_notifications_matching(
         mgr,
-        ("/notif:notification"
-         "/test-notification:notification-from-container"
-         "/test-notification:container-notification-string-changed"
-         "/test-notification:new-value"),
+        (
+            "/notif:notification"
+            "/test-notification:notification-from-container"
+            "/test-notification:container-notification-string-changed"
+            "/test-notification:new-value"
+        ),
     )
     assert results[0].text == "Container Notification"
     clear_test_notification_container_notification_string(mgr)
@@ -249,11 +253,13 @@ def test_embedded_notification_list_one_item(mgr, notification_cleanup):
     )
     results = find_notifications_matching(
         mgr,
-        ("/notif:notification"
-         "/test-notification:notification-from-list"
-         "/test-notification:notification-from-list"
-         "/test-notification:list-foo-changed"
-         "/test-notification:new-value"),
+        (
+            "/notif:notification"
+            "/test-notification:notification-from-list"
+            "/test-notification:notification-from-list"
+            "/test-notification:list-foo-changed"
+            "/test-notification:new-value"
+        ),
     )
     assert results[0].text == "Notification Message"
 
@@ -288,11 +294,13 @@ def test_embedded_notification_list_two_items(mgr, notification_cleanup):
     )
     results = find_notifications_matching(
         mgr,
-        ("/notif:notification"
-         "/test-notification:notification-from-list"
-         "/test-notification:notification-from-list"
-         "/test-notification:list-foo-changed"
-         "/test-notification:new-value"),
+        (
+            "/notif:notification"
+            "/test-notification:notification-from-list"
+            "/test-notification:notification-from-list"
+            "/test-notification:list-foo-changed"
+            "/test-notification:new-value"
+        ),
     )
     assert results[0].text == "Notification Message"
     generate_test_notification_list_foo_string_notif(
@@ -300,11 +308,13 @@ def test_embedded_notification_list_two_items(mgr, notification_cleanup):
     )
     results = find_notifications_matching(
         mgr,
-        ("/notif:notification"
-         "/test-notification:notification-from-list"
-         "/test-notification:notification-from-list"
-         "/test-notification:list-foo-changed"
-         "/test-notification:new-value"),
+        (
+            "/notif:notification"
+            "/test-notification:notification-from-list"
+            "/test-notification:notification-from-list"
+            "/test-notification:list-foo-changed"
+            "/test-notification:new-value"
+        ),
     )
     assert results[0].text == "Notification Message2"
 
@@ -341,11 +351,13 @@ def test_embedded_notification_list_insert_and_delete(mgr, notification_cleanup)
     )
     results = find_notifications_matching(
         mgr,
-        ("/notif:notification"
-         "/test-notification:notification-from-list"
-         "/test-notification:notification-from-list"
-         "/test-notification:list-foo-changed"
-         "/test-notification:new-value"),
+        (
+            "/notif:notification"
+            "/test-notification:notification-from-list"
+            "/test-notification:notification-from-list"
+            "/test-notification:list-foo-changed"
+            "/test-notification:new-value"
+        ),
     )
     assert results[0].text == "Notification Message"
     generate_test_notification_list_foo_string_notif(
@@ -353,11 +365,13 @@ def test_embedded_notification_list_insert_and_delete(mgr, notification_cleanup)
     )
     results = find_notifications_matching(
         mgr,
-        ("/notif:notification"
-         "/test-notification:notification-from-list"
-         "/test-notification:notification-from-list"
-         "/test-notification:list-foo-changed"
-         "/test-notification:new-value"),
+        (
+            "/notif:notification"
+            "/test-notification:notification-from-list"
+            "/test-notification:notification-from-list"
+            "/test-notification:list-foo-changed"
+            "/test-notification:new-value"
+        ),
     )
     assert results[0].text == "Notification Message2"
 
@@ -380,11 +394,13 @@ def test_embedded_notification_list_insert_and_delete(mgr, notification_cleanup)
     )
     results = find_notifications_matching(
         mgr,
-        ("/notif:notification"
-         "/test-notification:notification-from-list"
-         "/test-notification:notification-from-list"
-         "/test-notification:list-foo-changed"
-         "/test-notification:new-value"),
+        (
+            "/notif:notification"
+            "/test-notification:notification-from-list"
+            "/test-notification:notification-from-list"
+            "/test-notification:list-foo-changed"
+            "/test-notification:new-value"
+        ),
     )
     assert results[0].text == "Notification Message"
     clear_notification_list_item(mgr, "Notification99")
@@ -403,11 +419,13 @@ def test_embedded_notification_list_insert_and_delete(mgr, notification_cleanup)
     )
     results = find_notifications_matching(
         mgr,
-        ("/notif:notification"
-         "/test-notification:notification-from-list"
-         "/test-notification:notification-from-list"
-         "/test-notification:list-foo-changed"
-         "/test-notification:new-value"),
+        (
+            "/notif:notification"
+            "/test-notification:notification-from-list"
+            "/test-notification:notification-from-list"
+            "/test-notification:list-foo-changed"
+            "/test-notification:new-value"
+        ),
     )
     assert results[0].text == "Notification Message1"
     generate_test_notification_list_foo_string_notif(
@@ -415,11 +433,13 @@ def test_embedded_notification_list_insert_and_delete(mgr, notification_cleanup)
     )
     results = find_notifications_matching(
         mgr,
-        ("/notif:notification"
-         "/test-notification:notification-from-list"
-         "/test-notification:notification-from-list"
-         "/test-notification:list-foo-changed"
-         "/test-notification:new-value"),
+        (
+            "/notif:notification"
+            "/test-notification:notification-from-list"
+            "/test-notification:notification-from-list"
+            "/test-notification:list-foo-changed"
+            "/test-notification:new-value"
+        ),
     )
     assert results[0].text == "Notification Message2"
 
@@ -459,12 +479,14 @@ def test_embedded_notification_list_in_list(mgr, notification_cleanup):
     )
     results = find_notifications_matching(
         mgr,
-        ("/notif:notification"
-         "/test-notification:notification-from-list"
-         "/test-notification:notification-from-list"
-         "/test-notification:embedded-list"
-         "/test-notification:embedded-foo-changed"
-         "/test-notification:new-value"),
+        (
+            "/notif:notification"
+            "/test-notification:notification-from-list"
+            "/test-notification:notification-from-list"
+            "/test-notification:embedded-list"
+            "/test-notification:embedded-foo-changed"
+            "/test-notification:new-value"
+        ),
     )
     assert results[0].text == "Notification Message"
 

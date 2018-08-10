@@ -10,6 +10,8 @@ test: build/docker_built
 
 format: build/docker_built
 	$(DOCKER_RUN) black .
+	$(DOCKER_RUN) /bin/sh -c 'find ../test-service \( -name "*.hpp" -o -name "*.cpp" \) | xargs clang-format -i'
+	$(DOCKER_RUN) chown -R $(shell id -u):$(shell id -g) ../test-service
 
 build: build/docker_built
 
