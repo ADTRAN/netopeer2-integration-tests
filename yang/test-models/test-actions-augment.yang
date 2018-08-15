@@ -39,16 +39,16 @@ module test-actions-augment {
     }
 
     action aug-action {
-        input {
-          leaf action-input {
-            type string;
-          }
-        }
-        output {
-          leaf action-output {
-            type string;
-          }
+      input {
+        leaf action-input {
+          type string;
         }
       }
+      output {
+        leaf action-output {
+          type string;
+        }
+      }
+    }
   }
 }
