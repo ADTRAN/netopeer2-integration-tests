@@ -34,7 +34,6 @@ def test_create_resolved_data_and_removing_in_reverse_order_is_ok(mgr, cleanup):
     assert get_referer_list(mgr) == {}
 
 
-@pytest.mark.xfail
 def test_create_resolved_data_and_removing_referenced_data_is_error(mgr, cleanup):
     edit_referee(mgr, "create", "Foo", "Bar")
     edit_referer(mgr, "create", "Foo", "RefFoo")
