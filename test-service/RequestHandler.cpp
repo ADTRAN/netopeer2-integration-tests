@@ -15,6 +15,9 @@ RequestHandler::RequestHandler(SysrepoListener &sysrepo)
   Pistache::Rest::Routes::Post(
       m_router, "/set-action-reply",
       Pistache::Rest::Routes::bind(&RequestHandler::setActionReply, this));
+  Pistache::Rest::Routes::Get(
+      m_router, "/ready",
+      Pistache::Rest::Routes::bind(&RequestHandler::ready, this));
   m_endpoint.init(Pistache::Http::Endpoint::options().threads(1));
   m_endpoint.setHandler(m_router.handler());
   m_endpoint.serve();
@@ -68,6 +71,11 @@ void RequestHandler::setActionReply(const Pistache::Rest::Request &request,
                  "Failed to subscribe to action");
   m_sysrepo.setActionValues(d["xpath"].GetString(), std::move(values));
 
+  response.send(Pistache::Http::Code::Ok, "");
+}
+
+void RequestHandler::ready(const Pistache::Rest::Request &request,
+                           Pistache::Http::ResponseWriter response) {
   response.send(Pistache::Http::Code::Ok, "");
 }
 

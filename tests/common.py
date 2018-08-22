@@ -109,6 +109,11 @@ def set_action_reply(action):
     assert result.ok
 
 
+def test_service_ready():
+    result = requests.get("http://localhost:9080/ready")
+    assert result.ok
+
+
 def find_single_xpath(data_xml, xpath):
     doc = etree.fromstring(data_xml.encode("utf-8"))
     results = doc.xpath(xpath, namespaces=NS_MAP)

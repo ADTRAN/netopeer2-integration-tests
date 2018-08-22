@@ -18,6 +18,8 @@ public:
                         Pistache::Http::ResponseWriter response);
   void setActionReply(const Pistache::Rest::Request &request,
                       Pistache::Http::ResponseWriter response);
+  void ready(const Pistache::Rest::Request &request,
+             Pistache::Http::ResponseWriter response);
 
 private:
   Pistache::Http::Endpoint m_endpoint;

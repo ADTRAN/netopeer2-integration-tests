@@ -1,8 +1,9 @@
 import subprocess
 
 import pytest
+import requests
 
-from common import wait_for, connect_mgr
+from common import wait_for, connect_mgr, test_service_ready
 
 
 @pytest.fixture(scope="session")
@@ -12,6 +13,7 @@ def services():
     subprocess.check_call("supervisord")
 
     wait_for(connect_mgr, timeout=60, period=0.5).close_session()
+    wait_for(test_service_ready, timeout=60, period=0.5)
 
 
 @pytest.fixture()
