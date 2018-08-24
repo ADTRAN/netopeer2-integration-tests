@@ -109,8 +109,13 @@ def set_action_reply(action):
     assert result.ok
 
 
-def test_service_ready():
-    result = requests.get("http://localhost:9080/ready")
+def test_send_notification_service_ready():
+    result = requests.post("http://localhost:9080/send-notification", json={'no-op': None})
+    assert result.ok
+
+
+def test_set_action_reply_service_ready():
+    result = requests.post("http://localhost:9080/set-action-reply", json={'no-op': None})
     assert result.ok
 
 
