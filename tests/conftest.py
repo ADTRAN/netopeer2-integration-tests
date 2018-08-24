@@ -7,7 +7,7 @@ from common import (
     wait_for,
     connect_mgr,
     test_send_notification_service_ready,
-    test_set_action_reply_service_ready
+    test_set_action_reply_service_ready,
 )
 
 

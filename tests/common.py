@@ -41,6 +41,8 @@ NS_MAP = {
     "test-actions": "http://example.com/netopeer2-integration-tests/test-actions",
     "test-actions-aug": "http://example.com/netopeer2-integration-tests/test-actions-augment",
     "ietf-hw": "urn:ietf:params:xml:ns:yang:ietf-hardware",
+    "ks": "urn:ietf:params:xml:ns:yang:ietf-keystore",
+    "ncs": "urn:ietf:params:xml:ns:yang:ietf-netconf-server",
 }
 
 
@@ -110,12 +112,16 @@ def set_action_reply(action):
 
 
 def test_send_notification_service_ready():
-    result = requests.post("http://localhost:9080/send-notification", json={'no-op': None})
+    result = requests.post(
+        "http://localhost:9080/send-notification", json={"no-op": None}
+    )
     assert result.ok
 
 
 def test_set_action_reply_service_ready():
-    result = requests.post("http://localhost:9080/set-action-reply", json={'no-op': None})
+    result = requests.post(
+        "http://localhost:9080/set-action-reply", json={"no-op": None}
+    )
     assert result.ok
 
 
@@ -309,3 +315,47 @@ def clear_notification_list_item(mgr, name):
             name
         ),
     )
+
+
+def dict_to_xml(name, value, ns=NS_MAP):
+    if isinstance(value, str):
+        inner = value
+        attributes = ""
+    elif isinstance(value, list):
+        return "".join(dict_to_xml(name, x, None) for x in value)
+    else:
+        all_keys = value.keys()
+        list_keys = [x for x in all_keys if x.startswith("^")]
+        attr_keys = [x for x in all_keys if x.startswith("@")]
+        other_keys = [
+            x for x in all_keys if not x.startswith("^") and not x.startswith("@")
+        ]
+
+        inner = "".join(dict_to_xml(k[1:], value[k], None) for k in list_keys)
+        inner += "".join(dict_to_xml(k, value[k], None) for k in other_keys)
+
+        if attr_keys:
+            attributes = " " + "".join(
+                ['{}="{}"'.format(k[1:], value[k]) for k in attr_keys]
+            )
+        else:
+            attributes = ""
+
+    if ns:
+        attributes += " " + " ".join(
+            ['xmlns:{}="{}"'.format(key, value) for key, value in ns.items()]
+        )
+
+    at_index = name.find("@")
+    if at_index != -1:
+        attributes += " " + name[at_index + 1 :]
+        name = name[:at_index]
+
+    return "<{name}{attributes}>{inner}</{name}>".format(
+        name=name, attributes=attributes, inner=inner
+    )
+
+
+def edit_config_dict(mgr, values):
+    xml = dict_to_xml("nc:config", values, NS_MAP)
+    mgr.edit_config(target="running", config=xml)

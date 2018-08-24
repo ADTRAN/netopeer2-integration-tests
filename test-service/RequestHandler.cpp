@@ -68,7 +68,7 @@ void RequestHandler::setActionReply(const Pistache::Rest::Request &request,
     TRY_OR_BAD_REQ(values, "Failed to parse value list");
 
     TRY_OR_BAD_REQ(m_sysrepo.subscribeForAction(d["xpath"].GetString()),
-                  "Failed to subscribe to action");
+                   "Failed to subscribe to action");
     m_sysrepo.setActionValues(d["xpath"].GetString(), std::move(values));
   }
 

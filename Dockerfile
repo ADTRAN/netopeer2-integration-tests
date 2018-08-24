@@ -28,7 +28,8 @@ RUN pip3 install \
     black==18.6b4 \
     pytest==3.6.3 \
     PyYAML==3.13 \
-    requests==2.19.1
+    requests==2.19.1 \
+    pyasn1-modules==0.2.2
 
 # Build pistache, a REST toolkit for C++ used for the test_service.
 # This project currently has no release tags, and POST requests fail
@@ -63,8 +64,12 @@ RUN cd /tmp/repo/sysrepo && \
     make install
 
 COPY repo/Netopeer2 /tmp/repo/Netopeer2
-RUN cd /tmp/repo/Netopeer2/server && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DENABLE_BUILD_TESTS=Off -DENABLE_VALGRIND_TESTS=Off . && \
+RUN cd /tmp/repo/Netopeer2/keystored && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DKEYSTORED_KEYS_DIR=/etc/keystored/keys && \
+    make -j4 && \
+    make install && \
+    cd /tmp/repo/Netopeer2/server && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DENABLE_BUILD_TESTS=Off -DENABLE_VALGRIND_TESTS=Off -DKEYSTORED_KEYS_DIR=/etc/keystored/keys . && \
     make -j4 && \
     make install
 
