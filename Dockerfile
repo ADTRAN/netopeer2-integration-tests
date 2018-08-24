@@ -29,10 +29,16 @@ RUN pip3 install \
     pytest==3.6.3 \
     PyYAML==3.13 \
     requests==2.19.1
+
+# Build pistache, a REST toolkit for C++ used for the test_service.
+# This project currently has no release tags, and POST requests fail
+# beginning in pistache@496a2d1, so reset to the commit just prior to that.
 RUN cd /tmp && \
     git clone --recursive https://github.com/oktal/pistache.git && \
-    mkdir pistache/build && \
-    cd pistache/build && \
+    cd pistache && \
+    git reset --hard c613852 && \
+    mkdir build && \
+    cd build && \
     cmake -DCMAKE_INSTALL_PREFIX=/usr .. && \
     make -j4 && \
     make install
