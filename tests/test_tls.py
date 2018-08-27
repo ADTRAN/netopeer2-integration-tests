@@ -69,7 +69,7 @@ def test_tls_all_keys_match_root(mgr, temp_chains, cleanup):
     )
 
 
-@pytest.mark.xfail(strict=True)
+@pytest.mark.xfail
 def test_tls_client_missing_server_intermediate(mgr, temp_chains, cleanup):
     """In this case the client should ask the server for the intermediate CA"""
     do_cert_test(
