@@ -171,7 +171,6 @@ def test_tls_all_keys_match_leaf(mgr, temp_chains, cleanup):
     )
 
 
-@pytest.mark.xfail()
 def test_tls_only_client_leaf_trusted_and_fingerprint_of_client_CA(
     mgr, temp_chains, cleanup
 ):
@@ -199,7 +198,6 @@ def test_tls_only_client_leaf_trusted_and_fingerprint_of_client_CA(
     )
 
 
-@pytest.mark.xfail()
 def test_tls_only_client_leaf_trusted_and_fingerprint_of_client_leaf(
     mgr, temp_chains, cleanup
 ):
@@ -227,7 +225,6 @@ def test_tls_only_client_leaf_trusted_and_fingerprint_of_client_leaf(
     )
 
 
-@pytest.mark.xfail()
 def test_tls_fingerprint_cascade(mgr, temp_chains, cleanup):
     """Verify that when the first cert-to-name entry doesn't match, the
        next one is tried"""
