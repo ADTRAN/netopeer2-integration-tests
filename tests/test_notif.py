@@ -157,7 +157,6 @@ def find_notifications_matching(mgr, xpath):
             return results
 
 
-@pytest.mark.xfail()
 def test_config_changed_notification(mgr, notification_cleanup):
     mgr.create_subscription()
     assert get_test_notification_simple_string(mgr) == "Not Found"
