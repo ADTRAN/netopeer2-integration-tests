@@ -6,7 +6,10 @@ PYTEST_ARGS ?= -x
 .PHONY: test build
 
 test: build/docker_built
-	$(DOCKER_RUN) py.test -vvl $(PYTEST_ARGS)
+	$(DOCKER_RUN) py.test -vvl $(PYTEST_ARGS) ; \
+	_PYTEST_EXIT_CODE=$$? ; \
+	$(DOCKER_RUN) chown -R $(shell id -u):$(shell id -g) /var/log ; \
+	exit $$_PYTEST_EXIT_CODE
 
 format: build/docker_built
 	$(DOCKER_RUN) black .
