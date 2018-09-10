@@ -6,7 +6,16 @@ from lxml import etree
 from common import xml_to_dict
 
 
-@pytest.mark.xfail()
+def append_startup_config(expected_config, startup_config):
+    # This test as written does not support the case where containers from
+    # the startup config are also being altered in the snippet config.
+    # (This would require more intelligently merging the containers rather than
+    # the naive update call below.)
+    assert 0 == len([k for k in startup_config.keys() if k in expected_config])
+
+    expected_config.update(startup_config)
+
+
 @pytest.mark.parametrize("snippet_file", glob.glob("snippets/*.xml"))
 def test_snippet(mgr, snippet_file):
     """
@@ -14,7 +23,10 @@ def test_snippet(mgr, snippet_file):
     what the server thinks the current state of <running> is (if provided);
     performs the cleanup and ensures that the config was entirely removed
     """
-    assert len(mgr.get_config(source="running").data_ele) == 0
+
+    startup_config = xml_to_dict(mgr.get_config(source="startup").data_ele)
+    initial_config = xml_to_dict(mgr.get_config(source="running").data_ele)
+    assert initial_config == startup_config
 
     snippet = etree.parse(snippet_file)
 
@@ -26,14 +38,16 @@ def test_snippet(mgr, snippet_file):
 
         response = snippet.xpath("//response")
         if response:
-            expected_response = response[0][0]
-            actual_response = mgr.get_config(source="running").data_ele
-            assert xml_to_dict(expected_response) == xml_to_dict(actual_response)
+            expected_config = xml_to_dict(response[0][0])
+            append_startup_config(expected_config, startup_config)
+            current_config = xml_to_dict(mgr.get_config(source="running").data_ele)
+            assert current_config == expected_config
 
         cleanup = snippet.xpath("//cleanup")[0][0]
         mgr.edit_config(target="running", config=cleanup)
 
-        assert len(mgr.get_config(source="running").data_ele) == 0
+        final_config = xml_to_dict(mgr.get_config(source="running").data_ele)
+        assert final_config == startup_config
     except:
         if xfail:
             pytest.xfail("Snippet failed, but marked with xfail")
