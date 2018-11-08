@@ -22,7 +22,8 @@ RUN apt-get update && \
         rsyslog \
         openssh-server \
         rapidjson-dev \
-        clang-format
+        clang-format \
+        swig
 RUN pip3 install \
     ncclient==0.5.4 \
     black==18.6b4 \

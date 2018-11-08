@@ -81,7 +81,8 @@
         "test-models/test-id-ref-foreign.yang",
         "test-models/test-notifications.yang",
         "test-models/test-actions.yang",
-        "test-models/test-actions-augment.yang"
+        "test-models/test-actions-augment.yang",
+        "test-models/test-when.yang"
     ],
     "features": [
         "bbf-fast:performance-24hr"

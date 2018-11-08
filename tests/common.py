@@ -40,6 +40,7 @@ NS_MAP = {
     "nc-notif": "urn:ietf:params:xml:ns:yang:ietf-netconf-notifications",
     "test-actions": "http://example.com/netopeer2-integration-tests/test-actions",
     "test-actions-aug": "http://example.com/netopeer2-integration-tests/test-actions-augment",
+    "test-when": "http://example.com/netopeer2-integration-tests/test-when",
     "ietf-hw": "urn:ietf:params:xml:ns:yang:ietf-hardware",
     "ks": "urn:ietf:params:xml:ns:yang:ietf-keystore",
     "ncs": "urn:ietf:params:xml:ns:yang:ietf-netconf-server",
