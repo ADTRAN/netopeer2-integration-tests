@@ -23,7 +23,8 @@ RUN apt-get update && \
         openssh-server \
         rapidjson-dev \
         clang-format \
-        swig
+        swig \
+        libcurl4-openssl-dev
 RUN pip3 install \
     ncclient==0.5.4 \
     black==18.6b4 \

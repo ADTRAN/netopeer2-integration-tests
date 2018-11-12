@@ -82,6 +82,7 @@
         "test-models/test-notifications.yang",
         "test-models/test-actions.yang",
         "test-models/test-actions-augment.yang",
+        "test-models/test-candidate-config.yang",
         "test-models/test-when.yang"
     ],
     "features": [
