@@ -2,7 +2,6 @@ import pytest
 from common import find_single_xpath
 
 
-@pytest.mark.xfail(strict=True)
 def test_candidate_config_simple_copy(mgr, cleanup):
     set_simple_both(mgr, "START", "111")
     response_xml = mgr.get().data_xml
@@ -53,7 +52,6 @@ def test_candidate_config_simple_commit(mgr):
     check_data_cleared(mgr)
 
 
-@pytest.mark.xfail(strict=True)
 def test_candidate_config_copy_leaf_edit(mgr):
     set_simple_string(mgr, 'START')
     assert get_simple_string(mgr) == 'START'
