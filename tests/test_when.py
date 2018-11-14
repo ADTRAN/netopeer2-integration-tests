@@ -1,7 +1,7 @@
 import pytest
 from lxml import etree
 
-from common import NS_MAP
+from common import NS_MAP, find_single_xpath
 from ncclient.operations import RPCError
 
 
@@ -12,7 +12,6 @@ def test_when_statement_met(mgr, cleanup):
     assert get_test_container_gated_data(mgr) == '100'
 
 
-@pytest.mark.xfail(strict=True)
 def test_when_statement_unmet(mgr, cleanup):
     assert get_test_container_when_check(mgr) == 'Not Found'
     with pytest.raises(RPCError) as excinfo:
@@ -45,7 +44,6 @@ def test_when_statement_remove_data_on_false_statement(mgr, cleanup):
     assert get_test_container_gated_data(mgr) == 'Not Found'
 
 
-@pytest.mark.xfail(strict=True)
 def test_when_statement_becomes_false_error_on_modification(mgr, cleanup):
     set_test_container_when_check(mgr, "true")
     set_test_container_gated_data(mgr, 100)
@@ -57,15 +55,6 @@ def test_when_statement_becomes_false_error_on_modification(mgr, cleanup):
     with pytest.raises(RPCError) as excinfo:
         set_test_container_gated_data(mgr, 100)
     assert get_test_container_gated_data(mgr) == 'Not Found'
-
-
-def find_single_xpath(data_xml, xpath):
-    doc = etree.fromstring(data_xml.encode("utf-8"))
-    results = doc.xpath(xpath, namespaces=NS_MAP)
-    if len(results) > 0:
-        return results[0].text
-    else:
-        return "Not Found"
 
 
 def get_test_container_gated_data_from_data_xml(data_xml):
