@@ -83,9 +83,13 @@
         "test-models/test-actions.yang",
         "test-models/test-actions-augment.yang",
         "test-models/test-candidate-config.yang",
+        "test-models/test-module.yang",
+        "test-models/test-validation.yang",
         "test-models/test-when.yang"
     ],
     "features": [
-        "bbf-fast:performance-24hr"
+        "bbf-fast:performance-24hr",
+        "test-validation:enabled-leaf",
+        "test-module:submodule-enabled-feature"
     ]
 }

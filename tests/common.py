@@ -42,6 +42,8 @@ NS_MAP = {
     "test-actions-aug": "http://example.com/netopeer2-integration-tests/test-actions-augment",
     "test-when": "http://example.com/netopeer2-integration-tests/test-when",
     "test-cand-cfg": "http://example.com/netopeer2-integration-tests/test-candidate-config",
+    "test-validation": "http://example.com/netopeer2-integration-tests/test-validation",
+    "test-module": "http://example.com/netopeer2-integration-tests/test-module",
     "ietf-hw": "urn:ietf:params:xml:ns:yang:ietf-hardware",
     "ks": "urn:ietf:params:xml:ns:yang:ietf-keystore",
     "ncs": "urn:ietf:params:xml:ns:yang:ietf-netconf-server",
