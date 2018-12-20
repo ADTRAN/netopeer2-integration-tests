@@ -39,5 +39,5 @@ repo:
 
 check_test_env:
 ifndef INTEGRATION_TEST_DIR
-	INTEGRATION_TEST_DIR := $(shell pwd)
+	INTEGRATION_TEST_DIR:=$(shell pwd)
 endif
