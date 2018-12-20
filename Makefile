@@ -1,5 +1,5 @@
-DOCKER_NAME = netopeer2-integration-test-env
-DOCKER_RUN = docker run -it --rm -v $(shell pwd):/local -v $(shell pwd)/build/log:/var/log -w /local/tests --privileged $(DOCKER_NAME)
+DOCKER_NAME := netopeer2-integration-test-env
+DOCKER_RUN := docker run -it --rm -v $(INTEGRATION_TEST_DIR):/local -v $(INTEGRATION_TEST_DIR)/build/log:/var/log -w /local/tests --privileged $(DOCKER_NAME)
 
 PYTEST_ARGS ?= -x
 
@@ -18,7 +18,7 @@ format: build/docker_built
 
 build: build/docker_built
 
-build/docker_built: Dockerfile repo $(shell find repo -type f) $(shell find yang -type f) $(shell find support -type f) $(shell find test-service -type f)
+build/docker_built: Dockerfile repo check_test_env $(shell find repo -type f) $(shell find yang -type f) $(shell find support -type f) $(shell find test-service -type f)
 	mkdir -p build/log/supervisor
 	docker build -t $(DOCKER_NAME) .
 	touch $@
@@ -36,3 +36,8 @@ repo:
 	@echo sysrepo revision: $$(cd repo/sysrepo && git rev-parse HEAD)
 	@echo Netopeer2 revision: $$(cd repo/Netopeer2 && git rev-parse HEAD)
 	@echo
+
+check_test_env:
+ifndef INTEGRATION_TEST_DIR
+	INTEGRATION_TEST_DIR := $(shell pwd)
+endif
