@@ -1,10 +1,11 @@
 import pytest
 from ncclient.xml_ import to_ele
 
-from common import NS_MAP, set_action_reply
+from common import NS_MAP, set_action_reply, netconf_logger
 
 
-def test_action_in_config_list(mgr, cleanup):
+def test_action_in_config_list(mgr, cleanup, request):
+    netconf_logger.start(request)
     set_action_reply(
         {
             "xpath": "/test-actions:config-data/config-list/ct-config-action",
@@ -18,10 +19,12 @@ def test_action_in_config_list(mgr, cleanup):
     )
     edit_config_list(mgr, "create", "foo")
     r = send_config_list_action(mgr, "foo", "TestInput")
+    netconf_logger.stop(request)
     assert r == "TestOutput1"
 
 
-def test_action_in_config_container(mgr, cleanup):
+def test_action_in_config_container(mgr, cleanup, request):
+    netconf_logger.start(request)
     set_action_reply(
         {
             "xpath": "/test-actions:config-data/config-container/ct-config-container-action",
@@ -33,8 +36,11 @@ def test_action_in_config_container(mgr, cleanup):
             ],
         }
     )
+    mgr.get_config(source="running")
     edit_config_container(mgr, "create", "foo")
     r = send_config_container_action(mgr, "TestInput2")
+    netconf_logger.stop(request)
+
     assert r == "TestOutput2"
 
 

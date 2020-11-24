@@ -13,8 +13,8 @@ with open('manifest.json', 'r') as f:
     manifest = json.load(f)
 
 for model in manifest['models']:
-    run(['sysrepoctl', '--install', '--yang', model])
+    run(['sysrepoctl', '-i', model, '-s', model.split("/")[0]])
 
 for feature in manifest['features']:
     parts = feature.split(':')
-    run(['sysrepoctl', '--feature-enable', parts[1], '--module', parts[0]])
+    run(['sysrepoctl', '--enable-feature', parts[1], '--change', parts[0]])

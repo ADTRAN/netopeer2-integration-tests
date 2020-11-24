@@ -1,6 +1,9 @@
 /build
+/log
 /repo
 *.pyc
+.*.swp
 __pycache__
 .cache
 .pytest_cache
+.ropeproject
