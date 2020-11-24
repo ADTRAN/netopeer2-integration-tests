@@ -46,6 +46,7 @@ build: build/docker_built
 #NO_TMP_IMGS = --force-rm
 
 build/docker_built: Dockerfile $(PKG_WORKSPACES) $(shell find yang -type f) $(shell find support -type f) $(shell find test-service -type f)
+	mkdir -p $(@D)
 	docker build -t $(NO_TMP_IMGS) $(DOCKER_NAME) .
 	touch $@
 
