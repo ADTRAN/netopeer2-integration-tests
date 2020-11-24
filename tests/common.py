@@ -1,9 +1,10 @@
+import os
 import time
-import syslog
-import time
+import subprocess
 from lxml import etree
 
 import requests
+import logging
 from ncclient.manager import connect_ssh
 
 
@@ -23,10 +24,58 @@ def connect_mgr():
     return connect_ssh(
         host="localhost",
         port=830,
-        username="root",
-        password="password",
+        username="netconf",
+        password="netconf",
         hostkey_verify=False,
     )
+
+def nacm_enable(on_off):
+    rpc = "/tmp/nacm-on.rpc"
+
+    config="""<nacm xmlns="urn:ietf:params:xml:ns:yang:ietf-netconf-acm"><enable-nacm>false</enable-nacm></nacm>"""
+    with open(rpc,"w") as fnacm:
+        fnacm.write(config)
+    for ds in [ "startup", "running" ]:
+        subprocess.check_call(["sysrepocfg", "-v", "1", "--edit=" + rpc, "-f", "xml", "-d", ds])
+
+class netconf_logger:
+
+    LEVEL = logging.DEBUG
+    LOGDIR = "/var/log/"
+    LOGGER = {}
+
+    @classmethod
+    def start(cls, request):
+        cls.LOGGER[request.node.name] = cls(request.node.name)
+
+    @classmethod
+    def stop(cls, request):
+        try:
+            cls.LOGGER[request.node.name].stop_logging()
+        except:
+            pass
+
+    def __init__(self, filename):
+
+        if not os.path.isdir(self.LOGDIR):
+            os.mkdir(self.LOGDIR)
+
+        self._logger = logging.getLogger('ncclient.transport.ssh')
+        self._logger.setLevel(self.LEVEL)
+        self._logfile_hdl = logging.FileHandler(f"{self.LOGDIR}/{filename}.log")
+        self._logfile_hdl.setLevel(self.LEVEL)
+        self._logger.addHandler(self._logfile_hdl)
+
+    def _stop(self):
+        try:
+            self._logger.removeHandler(self._logfile_hdl)
+            self._logfile_hdl.close()
+            self._logfile_hdl = None
+            self._logger.disabled = True
+        except Exception as error:
+            print("{}, {}".format(self._logger, self._logfile_hdl, error))
+            pass
+
 
 
 NS_MAP = {
@@ -111,8 +160,9 @@ def send_notification(notification):
 
 
 def set_action_reply(action):
-    result = requests.post("http://localhost:9080/set-action-reply", json=action)
-    assert result.ok
+    pass
+#    result = requests.post("http://localhost:9080/set-action-reply", json=action)
+#    assert result.ok
 
 
 def test_send_notification_service_ready():

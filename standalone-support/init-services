@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo '<nacm xmlns="urn:ietf:params:xml:ns:yang:ietf-netconf-acm"><enable-nacm>false</enable-nacm></nacm>' > /tmp/nacm.rpc
+sysrepocfg --edit=/tmp/nacm.rpc -f xml
+
+if [ ! -e "/var/run/supervisord.pid" ]; then
+  supervisord 2> /dev/null
+fi
+

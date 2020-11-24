@@ -20,17 +20,22 @@
 
 using std::to_string;
 
-std::string to_string(sr_notif_event_t e) {
+std::string to_string(sr_ev_notif_type_t e) {
   switch (e) {
-  case SR_EV_VERIFY:
-    return "SR_EV_VERIFY";
-  case SR_EV_APPLY:
-    return "SR_EV_APPLY";
-  case SR_EV_ABORT:
+  case SR_EV_UPDATE : 
+    return "SR_EV_UPDATE";
+  case SR_EV_CHANGE : 
+    return "SR_EV_CHANGE";
+  case SR_EV_DONE : 
+    return "SR_EV_DONE";
+  case SR_EV_ABORT : 
     return "SR_EV_ABORT";
-  case SR_EV_ENABLED:
+  case SR_EV_ENABLED : 
     return "SR_EV_ENABLED";
+  case SR_EV_RPC : 
+    return "SR_EV_RPC";
   }
+  return "SR_EV_INVALID";
 }
 
 std::string to_string(sr_change_oper_t c) {
@@ -44,6 +49,7 @@ std::string to_string(sr_change_oper_t c) {
   case SR_OP_MOVED:
     return "SR_OP_MOVED";
   }
+  return "SR_OP_INVALID";
 }
 
 void SysrepoListener::listen() {
@@ -58,41 +64,49 @@ void SysrepoListener::sysrepoConnect() {
 }
 
 int SysrepoListener::attemptSysrepoConnect() {
-  SR_TRY(sr_connect("test_service", SR_CONN_DAEMON_REQUIRED, &m_connection));
-  SR_TRY(sr_session_start(m_connection, SR_DS_RUNNING, SR_SESS_CONFIG_ONLY,
-                          &m_session));
+  SR_TRY(sr_connect(SR_CONN_DEFAULT, &m_connection));
+  SR_TRY(sr_session_start(m_connection, SR_DS_RUNNING, &m_session));
   return SR_ERR_OK;
 }
-int SysrepoListener::subscribeToAll() {
-  sr_schema_t *schemas;
-  size_t schemaCount;
-  SR_TRY(sr_list_schemas(m_session, &schemas, &schemaCount));
 
-  for (sr_schema_t *schema = schemas; (size_t)(schema - schemas) < schemaCount;
-       schema++) {
-    std::cerr << "Subscribing to module " << schema->module_name << "\n";
-    if (sr_module_change_subscribe(
-            m_session, schema->module_name, changeTrampoline, (void *)this,
-            0 /*priority*/, SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED,
-            &m_subscription)) {
-      std::cerr << "Failed to subscribe to " << schema->module_name << "\n";
-    } else {
+int SysrepoListener::subscribeToAll()
+{
+#if 0
+  for(const std::string &module: m_LibyangContext->get_config_modules())
+  {
+    std::cerr << "Subscribing to module " << module.c_str() << "\n";
+    if(sr_module_change_subscribe(m_session,
+                                  module.c_str(),
+                                  NULL, /*xpath*/
+                                  changeTrampoline,
+                                  (void*)this,
+                                  0     /*priority*/,
+                                  SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED,
+                                  &m_subscription)) 
+    {
+      std::cerr << "Failed to subscribe to " << module << "\n"; 
+    } 
+    else
+    {
       std::cerr << "Subscribed to module " << schema->module_name << "\n";
     }
-  }
-  sr_free_schemas(schemas, schemaCount);
-
+  } 
+#endif
   return SR_ERR_OK;
 }
 
 int SysrepoListener::changeTrampoline(sr_session_ctx_t *session,
                                       const char *module,
-                                      sr_notif_event_t event, void *data) {
+                                      const char *xpath,
+                                      sr_event_t event,
+                                      uint32_t request_id,
+                                      void *data)
+{
   return ((SysrepoListener *)data)->handleChanges(session, module, event);
 }
 
 int SysrepoListener::handleChanges(sr_session_ctx_t *session,
-                                   const char *module, sr_notif_event_t event) {
+                                   const char *module, sr_event_t event) {
   std::ofstream events("/tmp/test-service-event-stream.yml",
                        std::ios::out | std::ios::app | std::ios::ate);
   if (!events) {
@@ -140,10 +154,14 @@ bool SysrepoListener::subscribeForAction(const char *xpath) {
     return true;
   }
 
-  if (sr_action_subscribe(m_session, xpath, &SysrepoListener::actionTrampoline,
-                          (void *)this, SR_SUBSCR_CTX_REUSE,
-                          &m_subscription) != SR_ERR_OK) {
-    return false;
+  if(sr_rpc_subscribe_tree(m_session,
+                           xpath,
+                           &SysrepoListener::actionTrampoline,
+                           this,
+                           0 /*priority*/,
+                           SR_SUBSCR_CTX_REUSE,
+                           &m_subscription) != SR_ERR_OK) {
+    return false; 
   }
 
   m_subscribedActions.insert(key);
@@ -170,16 +188,19 @@ void SysrepoListener::setActionValues(const char *xpath,
   m_actionValues[schema] = std::move(values);
 }
 
-int SysrepoListener::actionTrampoline(const char *xpath, const sr_val_t *input,
-                                      const size_t input_cnt, sr_val_t **output,
-                                      size_t *output_cnt, void *data) {
-  return ((SysrepoListener *)data)
-      ->handleAction(xpath, input, input_cnt, output, output_cnt);
+int SysrepoListener::actionTrampoline(sr_session_ctx_t *session,
+                                      const char *xpath,
+                                      const struct lyd_node *input,
+                                      sr_event_t event,
+                                      uint32_t request_id,
+                                      struct lyd_node *output,
+                                      void *data)
+{
+  return ((SysrepoListener *)data)->handleAction(xpath, input);
 }
 
-int SysrepoListener::handleAction(const char *xpath, const sr_val_t *input,
-                                  const size_t input_cnt, sr_val_t **output,
-                                  size_t *output_cnt) {
+int SysrepoListener::handleAction(const char *xpath, const struct lyd_node *input) 
+{
   std::string schemaPath(xpathToSchemaPath(xpath));
 
   auto values = m_actionValues.find(schemaPath);
@@ -188,7 +209,5 @@ int SysrepoListener::handleAction(const char *xpath, const sr_val_t *input,
               << schemaPath << ")\n";
     return SR_ERR_INTERNAL;
   }
-
-  sr_dup_values(values->second->values, values->second->valueCount, output);
-  *output_cnt = values->second->valueCount;
+  return SR_ERR_OK;
 }

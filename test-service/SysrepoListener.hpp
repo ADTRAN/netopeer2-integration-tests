@@ -35,17 +35,25 @@ private:
   int attemptSysrepoConnect();
   int subscribeToAll();
 
-  static int changeTrampoline(sr_session_ctx_t *session, const char *module,
-                              sr_notif_event_t event, void *data);
-  int handleChanges(sr_session_ctx_t *session, const char *module,
-                    sr_notif_event_t event);
+  static int changeTrampoline(sr_session_ctx_t *session,
+                              const char *module,
+                              const char *xpath,
+                              sr_event_t event,
+                              uint32_t request_id,
+                              void *data);
 
-  static int actionTrampoline(const char *xpath, const sr_val_t *input,
-                              const size_t input_cnt, sr_val_t **output,
-                              size_t *output_cnt, void *data);
-  int handleAction(const char *xpath, const sr_val_t *input,
-                   const size_t input_cnt, sr_val_t **output,
-                   size_t *output_cnt);
+  int handleChanges(sr_session_ctx_t *session, const char *module,
+                    sr_event_t event);
+
+  static int actionTrampoline(sr_session_ctx_t *session,
+                              const char *xpath,
+                              const struct lyd_node *input,
+                              sr_event_t event,
+                              uint32_t request_id,
+                              struct lyd_node *output,
+                              void *data);
+
+  int handleAction(const char *xpath, const struct lyd_node *input) ;
 
   sr_conn_ctx_t *m_connection = nullptr;
   sr_subscription_ctx_t *m_subscription = nullptr;

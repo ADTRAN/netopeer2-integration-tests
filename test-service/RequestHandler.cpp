@@ -41,13 +41,12 @@ void RequestHandler::sendNotification(const Pistache::Rest::Request &request,
 
     auto values = parseValueList(d["values"]);
     TRY_OR_BAD_REQ(values, "Failed to parse value list");
-
-    sr_session_refresh(m_sysrepo.m_session);
-
+#if 0
     int ret = sr_event_notif_send(m_sysrepo.m_session, d["xpath"].GetString(),
                                   values->values, values->valueCount,
                                   SR_EV_NOTIF_DEFAULT);
     TRY_OR_BAD_REQ(ret == SR_ERR_OK, "Failed to send request to sysrepo");
+#endif
   }
 
   response.send(Pistache::Http::Code::Ok, "");
