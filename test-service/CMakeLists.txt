@@ -11,6 +11,10 @@ target_link_libraries(test-service ${CMAKE_THREAD_LIBS_INIT})
 find_package(Sysrepo REQUIRED)
 target_link_libraries(test-service ${SYSREPO_LIBRARY})
 
+find_package(LibYANG REQUIRED)
+target_link_libraries(test-service ${LIBYANG_LIBRARIES})
+include_directories(${LIBYANG_INCLUDE_DIRS})
+
 find_package(Pistache REQUIRED)
 target_link_libraries(test-service pistache)
 

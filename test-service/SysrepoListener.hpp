@@ -4,6 +4,7 @@
 #include <sysrepo/values.h>
 
 #include <memory>
+#include <vector>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -54,6 +55,11 @@ private:
                               void *data);
 
   int handleAction(const char *xpath, const struct lyd_node *input) ;
+
+  const struct ly_ctx *getLyCtx() const;
+
+  std::vector<std::string> get_config_modules() const;
+  std::vector<std::string> get_action_xpathes() const;
 
   sr_conn_ctx_t *m_connection = nullptr;
   sr_subscription_ctx_t *m_subscription = nullptr;

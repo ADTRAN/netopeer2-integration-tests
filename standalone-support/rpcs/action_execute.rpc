@@ -1,0 +1,11 @@
+<action xmlns="urn:ietf:params:xml:ns:yang:1">
+  <config-data xmlns="http://example.com/netopeer2-integration-tests/test-actions">
+    <config-container xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="create">
+      <ct-config-container-action>
+	<action-input>input</action-input>
+      </ct-config-container-action>
+    </config-container>
+  </config-data>
+</action>
+
+

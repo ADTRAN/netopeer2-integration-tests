@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string.h>
 #include <string>
+#include <functional>
 #include <unistd.h>
 
 #define SR_TRY(x)                                                              \
@@ -19,6 +20,30 @@
   } while (false)
 
 using std::to_string;
+
+class XpathVector : public std::vector<std::string>
+{
+public:
+    void walk(const struct lys_node *node, std::function<bool(const struct lys_node*)> pred)
+    {
+        for(const struct lys_node *n = node; n; n=n->next)
+        {
+            if ( pred(n) ) {
+                char *path = lys_path(n, 0);
+                if ( path ) {
+                    push_back(path);
+                    free(path);
+                }
+                continue;
+            }
+            if ( ! (n->nodetype & (LYS_LEAF | LYS_LEAFLIST | LYS_ANYDATA )) ) {
+                walk(n->child, pred);
+            }
+        }
+    }
+};
+
+
 
 std::string to_string(sr_ev_notif_type_t e) {
   switch (e) {
@@ -68,11 +93,50 @@ int SysrepoListener::attemptSysrepoConnect() {
   SR_TRY(sr_session_start(m_connection, SR_DS_RUNNING, &m_session));
   return SR_ERR_OK;
 }
+  
+const struct ly_ctx *SysrepoListener::getLyCtx() const {
 
-int SysrepoListener::subscribeToAll()
+    if(m_session) {
+        return sr_get_context(sr_session_get_connection(m_session));
+    }
+    return nullptr;
+}
+
+std::vector<std::string> SysrepoListener::get_action_xpathes() const
 {
-#if 0
-  for(const std::string &module: m_LibyangContext->get_config_modules())
+    XpathVector xpathVector;
+
+    uint32_t idx = 0;
+    const struct lys_module *module = nullptr;
+    while( (module = ly_ctx_get_module_iter(getLyCtx(), &idx)) ) {
+        xpathVector.walk(module->data,
+                        [](const struct lys_node*n){return n->nodetype==LYS_ACTION;});
+    }
+    return xpathVector;
+}
+
+std::vector<std::string> SysrepoListener::get_config_modules() const {
+    std::vector<std::string> retvec;
+    uint32_t idx = 0;
+    const struct lys_module *module = nullptr;
+    // collect all modules that have a top-level element with config=true
+    while( (module = ly_ctx_get_module_iter(getLyCtx(), &idx)) ) {
+        for(const struct lys_node *n=module->data; n; n=n->next) {
+            if ( n->nodetype & (LYS_CONTAINER | LYS_LIST | LYS_LEAF | LYS_LEAFLIST) ) {
+                if ( n->flags & LYS_CONFIG_W ) {
+                    retvec.push_back(module->name);
+                    break;
+                }
+            }
+        }
+    }
+    return retvec;
+}
+
+
+int SysrepoListener::subscribeToAll() {
+
+  for(const std::string &module: get_config_modules())
   {
     std::cerr << "Subscribing to module " << module.c_str() << "\n";
     if(sr_module_change_subscribe(m_session,
@@ -88,10 +152,28 @@ int SysrepoListener::subscribeToAll()
     } 
     else
     {
-      std::cerr << "Subscribed to module " << schema->module_name << "\n";
+      std::cerr << "Subscribed to module " << module << "\n";
     }
   } 
-#endif
+
+  for(const std::string &xpath: get_action_xpathes())
+  { 
+    std::cerr << "Subscribing to xpath " << xpath << "\n";
+    if(sr_rpc_subscribe_tree(m_session,
+                             xpath.c_str(),
+                             &SysrepoListener::actionTrampoline,
+                             this,
+                             0 /*priority*/,
+                             SR_SUBSCR_CTX_REUSE,
+                             &m_subscription) != SR_ERR_OK)
+    {
+      std::cerr << "Failed to subscribe to " << xpath << "\n"; 
+    } 
+    else
+    {
+      std::cerr << "Subscribed to module " << xpath << "\n";
+    }
+  }
   return SR_ERR_OK;
 }
 
@@ -100,8 +182,8 @@ int SysrepoListener::changeTrampoline(sr_session_ctx_t *session,
                                       const char *xpath,
                                       sr_event_t event,
                                       uint32_t request_id,
-                                      void *data)
-{
+                                      void *data) {
+
   return ((SysrepoListener *)data)->handleChanges(session, module, event);
 }
 
