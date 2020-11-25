@@ -5,15 +5,15 @@ DELAY_BETWEEN_ATTEMPTS=1
 
 while [ "$MAX_ATTEMPTS" -gt "0" ]
 do
-    if [ -e /var/run/netopeer2-server.sock ] || [ -e /tmp/netopeer2-server.sock ]
+    if [ -e /var/run/netopeer2-server.pid ]
     then
         echo "Netopeer2-server is started"
         exec /usr/bin/test-service
     fi
-    echo "Netopeer2-server has not started. Waiting"
+    echo "Netopeer2-server has not started. Waiting..."
     sleep $DELAY_BETWEEN_ATTEMPTS
     MAX_ATTEMPTS=$(($MAX_ATTEMPTS - 1))
 done
 
-echo "Netopeer2-server did not start"
+echo "Netopeer2-server did not start, giving up"
 exit 1

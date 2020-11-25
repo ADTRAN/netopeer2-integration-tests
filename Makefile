@@ -32,6 +32,7 @@ test: test-env
 docker-shell: test-env
 	@docker run -d --rm -v $(INTEGRATION_TEST_DIR):/local -v $(INTEGRATION_TEST_DIR)/log:/var/log -w /local/standalone-support --name $(CONT_NAME) --privileged $(DOCKER_NAME) tail -F -n0 /etc/hosts ; \
 	docker exec -ti $(CONT_NAME) bash ; \
+	$(DOCKER_RUN) chown -R $(shell id -u):$(shell id -g) /var/log ; \
 	docker stop $(CONT_NAME)
 
 .PHONY: format
