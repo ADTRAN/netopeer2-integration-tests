@@ -21,7 +21,7 @@ def test_basic_edit(mgr):
     assert (
         event_log.find_change_in_log(
             event_log.load(),
-            "SR_EV_VERIFY",
+            "SR_EV_CHANGE",
             {
                 "operation": "SR_OP_CREATED",
                 "new-value": "TestValue",
@@ -38,7 +38,7 @@ def test_basic_edit(mgr):
     assert (
         event_log.find_change_in_log(
             event_log.load(),
-            "SR_EV_VERIFY",
+            "SR_EV_CHANGE",
             {"operation": "SR_OP_DELETED", "old-path": "/ietf-system:system/contact"},
         )
         is not None

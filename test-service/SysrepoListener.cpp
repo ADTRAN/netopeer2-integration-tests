@@ -29,9 +29,12 @@ public:
         for(const struct lys_node *n = node; n; n=n->next)
         {
             if ( pred(n) ) {
-                char *path = lys_path(n, 0);
-                if ( path ) {
+                char *path = lys_path(n, LYS_PATH_FIRST_PREFIX);
+                if ( path && !strstr(path, "{grouping}[") && !strstr(path, "{augment}[") ) {
+                    strip_dup_ns(path);
                     push_back(path);
+                }
+                else {
                     free(path);
                 }
                 continue;
@@ -41,11 +44,61 @@ public:
             }
         }
     }
+private:
+    char *get_next_slash(char *path) {
+        bool q = false, qq = false;
+        while (*path && (q || qq || *path != '/')) {
+           if (*path == '\'') {
+               q = !q;
+           }
+           else if (*path == '"') {
+               qq = !qq;
+           }
+           ++path;
+        }
+        return path;
+    }
+    char *get_next_ns(char *expr)
+    {
+        int i;
+        while (*expr) {
+            expr = get_next_slash(expr);
+            if (expr[0] != '/') {
+                return NULL;
+            }
+            if (!isalpha(expr[1]) && (expr[1] != '_')) {
+                ++expr;
+                continue;
+            }
+            for (i = 2; expr[i] && (isalnum(expr[i]) || (expr[i] == '_') || (expr[i] == '-') || (expr[i] == '.')); ++i) {}
+            if (expr[i] != ':') {
+                ++expr;
+                continue;
+            }
+            return strndup(expr, i+1);
+        }
+    }
+    void strip_dup_ns(char *path)
+    {
+        char *ns, *p0, *p, *q;
+        while (ns = get_next_ns(path)) {
+            p0 = strstr(path, ns);
+            if (p0) {
+                while (p0 = strstr(p0+strlen(ns), ns)) {
+                    p = p0+1;
+                    q = p0+strlen(ns);
+                    while (*p++ = *q++) {}
+                }
+            }
+            path += strlen(ns);
+            free(ns);
+        }
+    }
 };
 
 
 
-std::string to_string(sr_ev_notif_type_t e) {
+std::string to_string(sr_event_t e) {
   switch (e) {
   case SR_EV_UPDATE : 
     return "SR_EV_UPDATE";
@@ -75,6 +128,15 @@ std::string to_string(sr_change_oper_t c) {
     return "SR_OP_MOVED";
   }
   return "SR_OP_INVALID";
+}
+
+static void my_sr_log_cb(sr_log_level_t level, const char *msg)
+{
+      std::cerr << "sysrepo(" << level << ") " << msg << "\n"; 
+}
+
+SysrepoListener::SysrepoListener() {
+    sr_log_set_cb(my_sr_log_cb);
 }
 
 void SysrepoListener::listen() {
@@ -153,6 +215,8 @@ int SysrepoListener::subscribeToAll() {
     else
     {
       std::cerr << "Subscribed to module " << module << "\n";
+      const struct lys_module *ly_mod = ly_ctx_get_module(getLyCtx(), module.c_str(), NULL, 1);
+      m_module2Schema[module] = ly_mod ? ly_mod->data->name : "";
     }
   } 
 
@@ -171,8 +235,9 @@ int SysrepoListener::subscribeToAll() {
     } 
     else
     {
-      std::cerr << "Subscribed to module " << xpath << "\n";
+      std::cerr << "Subscribed to xpath " << xpath << "\n";
     }
+    m_subscribedActions.insert(xpath);
   }
   return SR_ERR_OK;
 }
@@ -196,7 +261,12 @@ int SysrepoListener::handleChanges(sr_session_ctx_t *session,
     return SR_ERR_OPERATION_FAILED;
   }
   std::ostringstream selector;
-  selector << "/" << module << ":*";
+  if (m_module2Schema[module].empty()) {
+    selector << "/" << module << ":*";
+  }
+  else {
+    selector << "/" << module << ":" << m_module2Schema[module] << "/*";
+  }
   sr_change_iter_t *iter;
   SR_TRY(sr_get_changes_iter(session, selector.str().c_str(), &iter));
 
@@ -278,10 +348,10 @@ int SysrepoListener::actionTrampoline(sr_session_ctx_t *session,
                                       struct lyd_node *output,
                                       void *data)
 {
-  return ((SysrepoListener *)data)->handleAction(xpath, input);
+  return ((SysrepoListener *)data)->handleAction(session, xpath, input, output);
 }
 
-int SysrepoListener::handleAction(const char *xpath, const struct lyd_node *input) 
+int SysrepoListener::handleAction(sr_session_ctx_t *session, const char *xpath, const struct lyd_node *input, struct lyd_node *output) 
 {
   std::string schemaPath(xpathToSchemaPath(xpath));
 
@@ -291,5 +361,6 @@ int SysrepoListener::handleAction(const char *xpath, const struct lyd_node *inpu
               << schemaPath << ")\n";
     return SR_ERR_INTERNAL;
   }
+  lyd_new_output_leaf(output, lys_node_module(output->schema), "action-output", values->second->values->data.string_val);
   return SR_ERR_OK;
 }

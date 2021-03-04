@@ -160,9 +160,8 @@ def send_notification(notification):
 
 
 def set_action_reply(action):
-    pass
-#    result = requests.post("http://localhost:9080/set-action-reply", json=action)
-#    assert result.ok
+    result = requests.post("http://localhost:9080/set-action-reply", json=action)
+    assert result.ok
 
 
 def test_send_notification_service_ready():

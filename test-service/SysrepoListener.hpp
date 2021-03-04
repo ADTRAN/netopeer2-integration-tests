@@ -22,7 +22,7 @@ struct SysrepoValues {
 class SysrepoListener {
 public:
   SysrepoListener(const SysrepoListener &) = delete;
-  SysrepoListener() = default;
+  SysrepoListener();
   void listen();
 
   sr_session_ctx_t *m_session = nullptr;
@@ -54,7 +54,7 @@ private:
                               struct lyd_node *output,
                               void *data);
 
-  int handleAction(const char *xpath, const struct lyd_node *input) ;
+  int handleAction(sr_session_ctx_t *session, const char *xpath, const struct lyd_node *input, struct lyd_node *output); 
 
   const struct ly_ctx *getLyCtx() const;
 
@@ -67,4 +67,5 @@ private:
   std::unordered_map<std::string, std::shared_ptr<SysrepoValues>>
       m_actionValues;
   std::unordered_set<std::string> m_subscribedActions;
+  std::unordered_map<std::string, std::string> m_module2Schema;
 };

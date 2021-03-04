@@ -8,7 +8,7 @@
 #include <utility>
 
 RequestHandler::RequestHandler(SysrepoListener &sysrepo)
-    : m_endpoint("*:9080"), m_sysrepo(sysrepo) {
+    : m_endpoint("localhost:9080"), m_sysrepo(sysrepo) {
   Pistache::Rest::Routes::Post(
       m_router, "/send-notification",
       Pistache::Rest::Routes::bind(&RequestHandler::sendNotification, this));
