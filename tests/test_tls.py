@@ -22,6 +22,8 @@ CLIENT_LEAF = "pki/client/out/Client.crt"
 CLIENT_LEAF_KEY = "pki/client/out/Client.key"
 
 
+pytestmark = pytest.mark.skip(reason='old object model')
+
 def test_tls_server_missing_client_intermediate_and_leaf(mgr, temp_chains, cleanup):
     """Verify that when the server only has the client's root CA it still
        accepts the connection"""
