@@ -11,6 +11,7 @@ from common import (
     clear_notification_list_item,
     get_embedded_list,
     set_embedded_list_item,
+    netconf_logger,
 )
 import datetime
 import time
@@ -128,7 +129,8 @@ def generate_test_notification_embedded_list_string_notif(key1, key2, value):
     )
 
 
-def test_basic_notification(mgr):
+def test_basic_notification(mgr, request):
+    netconf_logger.start(request)
     mgr.dispatch(
         to_ele(
             """
@@ -142,6 +144,7 @@ def test_basic_notification(mgr):
     )
     send_notification({"xpath": "/ietf-hardware:hardware-state-change", "values": []})
     n = mgr.take_notification(timeout=10)
+    netconf_logger.stop(request)
     assert n.notification_ele.xpath(
         "//ietf-hw:hardware-state-change", namespaces=NS_MAP
     )
