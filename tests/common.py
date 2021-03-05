@@ -94,7 +94,8 @@ NS_MAP = {
     "test-validation": "http://example.com/netopeer2-integration-tests/test-validation",
     "test-module": "http://example.com/netopeer2-integration-tests/test-module",
     "ietf-hw": "urn:ietf:params:xml:ns:yang:ietf-hardware",
-    "ks": "urn:ietf:params:xml:ns:yang:ietf-keystore",
+    'ks': 'urn:ietf:params:xml:ns:yang:ietf-keystore',
+    'ts': 'urn:ietf:params:xml:ns:yang:ietf-truststore',
     "ncs": "urn:ietf:params:xml:ns:yang:ietf-netconf-server",
 }
 
