@@ -9,6 +9,8 @@ RUN \
 	build-essential \
 	clang-format \
 	cmake \
+	curl \
+	dos2unix \
 	gdb \
 	git \
 	libavl-dev \
@@ -26,6 +28,7 @@ RUN \
 	protobuf-c-compiler \
 	python-dev \
 	python3-pip \
+#	python3-setuptools \
 	rapidjson-dev \
 	rsyslog \
 	sudo \
@@ -34,7 +37,18 @@ RUN \
 	valgrind \
 	vim
 
-RUN pip3 install \
+RUN \
+	eval 'curl -o /tmp/rustup https://sh.rustup.rs' && \
+	eval 'dos2unix /tmp/rustup' && \
+	eval 'chmod a+x /tmp/rustup' && \
+	/tmp/rustup -y && \
+	eval 'cat /root/.cargo/env' && \
+	eval 'export PATH=$PATH:/root/.cargo/bin' && \
+	eval 'rustc --version'
+
+RUN pip3 install setuptools-rust && \
+    eval 'export PATH=$PATH:/root/.cargo/bin' && \
+    pip3 install \
     ncclient \
     black==18.6b4 \
     pytest==3.6.3 \

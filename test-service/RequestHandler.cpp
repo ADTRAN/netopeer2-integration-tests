@@ -8,7 +8,7 @@
 #include <utility>
 
 RequestHandler::RequestHandler(SysrepoListener &sysrepo)
-    : m_endpoint("*:9080"), m_sysrepo(sysrepo) {
+    : m_endpoint("localhost:9080"), m_sysrepo(sysrepo) {
   Pistache::Rest::Routes::Post(
       m_router, "/send-notification",
       Pistache::Rest::Routes::bind(&RequestHandler::sendNotification, this));
@@ -41,12 +41,9 @@ void RequestHandler::sendNotification(const Pistache::Rest::Request &request,
 
     auto values = parseValueList(d["values"]);
     TRY_OR_BAD_REQ(values, "Failed to parse value list");
-#if 0
     int ret = sr_event_notif_send(m_sysrepo.m_session, d["xpath"].GetString(),
-                                  values->values, values->valueCount,
-                                  SR_EV_NOTIF_DEFAULT);
+                                  values->values, values->valueCount);
     TRY_OR_BAD_REQ(ret == SR_ERR_OK, "Failed to send request to sysrepo");
-#endif
   }
 
   response.send(Pistache::Http::Code::Ok, "");

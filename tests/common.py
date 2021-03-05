@@ -94,7 +94,8 @@ NS_MAP = {
     "test-validation": "http://example.com/netopeer2-integration-tests/test-validation",
     "test-module": "http://example.com/netopeer2-integration-tests/test-module",
     "ietf-hw": "urn:ietf:params:xml:ns:yang:ietf-hardware",
-    "ks": "urn:ietf:params:xml:ns:yang:ietf-keystore",
+    'ks': 'urn:ietf:params:xml:ns:yang:ietf-keystore',
+    'ts': 'urn:ietf:params:xml:ns:yang:ietf-truststore',
     "ncs": "urn:ietf:params:xml:ns:yang:ietf-netconf-server",
 }
 
@@ -160,9 +161,8 @@ def send_notification(notification):
 
 
 def set_action_reply(action):
-    pass
-#    result = requests.post("http://localhost:9080/set-action-reply", json=action)
-#    assert result.ok
+    result = requests.post("http://localhost:9080/set-action-reply", json=action)
+    assert result.ok
 
 
 def test_send_notification_service_ready():

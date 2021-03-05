@@ -31,7 +31,7 @@ def test_sessions(mgr):
     username = session.xpath("./nc-mon:username", namespaces=NS_MAP)[0].text
 
     assert transport == "netconf-ssh"
-    assert username == "root"
+    assert username == "netconf"
 
 
 # TODO: Test <schemas> based on the YANG models that were installed by manifest.json

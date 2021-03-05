@@ -6,9 +6,9 @@ import os
 from common import (
     wait_for,
     connect_mgr,
-    nacm_enable
-#    test_send_notification_service_ready,
-#    test_set_action_reply_service_ready,
+    nacm_enable,
+    test_send_notification_service_ready,
+    test_set_action_reply_service_ready,
 )
 
 @pytest.fixture(scope="session")
@@ -24,8 +24,8 @@ def services(nacm_off):
         subprocess.check_call("supervisord")
 
     wait_for(connect_mgr, timeout=20, period=0.5).close_session()
-#    wait_for(test_send_notification_service_ready, timeout=60, period=0.5)
-#    wait_for(test_set_action_reply_service_ready, timeout=60, period=0.5)
+    wait_for(test_send_notification_service_ready, timeout=60, period=0.5)
+    wait_for(test_set_action_reply_service_ready, timeout=60, period=0.5)
 
 @pytest.fixture()
 def mgr(services):

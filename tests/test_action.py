@@ -80,10 +80,10 @@ def test_action_in_augment(mgr, cleanup):
 def test_action_in_augmented_list(mgr, cleanup):
     set_action_reply(
         {
-            "xpath": "/test-actions:config-data/config-list/test-actions-augment:augmented-list/test-actions-augment:aug-list-action",
+            "xpath": "/test-actions:config-data/config-list/test-actions-augment:augmented-list/aug-list-action",
             "values": [
                 {
-                    "xpath": "/test-actions:config-data/config-list[name='foo']/test-actions-augment:augmented-list[aug-name='bar']/test-actions-augment:aug-list-action/test-actions-augment:action-output",
+                    "xpath": "/test-actions:config-data/config-list[name='foo']/test-actions-augment:augmented-list[aug-name='bar']/aug-list-action/action-output",
                     "value": "TestOutput5",
                 }
             ],

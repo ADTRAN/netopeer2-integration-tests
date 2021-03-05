@@ -1,5 +1,7 @@
 {
     "models": [
+        "standard-models/ietf-system@2014-08-06.yang",
+        "standard-models/ietf-hardware@2018-03-13.yang",
         "test-models/test-referer.yang",
         "test-models/test-referee.yang",
         "test-models/test-id-ref.yang",
