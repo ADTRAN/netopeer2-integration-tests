@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM artifactory.adtran.com/docker/mosaic-os-service-kit-ubuntu18:latest
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Berlin
 
