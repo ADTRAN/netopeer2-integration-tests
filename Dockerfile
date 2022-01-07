@@ -4,9 +4,10 @@ ENV TZ=Europe/Berlin
 
 # Setup build and runtime deps
 RUN \
-        apt-get update --fix-missing && apt-get install -y \
+	apt-get update --fix-missing && apt-get install -y \
 	acl \
 	build-essential \
+	ca-certificates \
 	clang-format \
 	cmake \
 	curl \
@@ -35,7 +36,9 @@ RUN \
 	supervisor \
 	swig \
 	valgrind \
-	vim
+	vim && \
+	update-ca-certificates
+
 
 RUN \
 	eval 'curl -o /tmp/rustup https://sh.rustup.rs' && \
