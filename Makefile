@@ -55,6 +55,8 @@ build/docker_built: Dockerfile $(PKG_WORKSPACES) $(shell find yang -type f) $(sh
 clean:
 	$(DOCKER_RUN) chown -R $(shell id -u):$(shell id -g) /var/log ;
 	rm -rf log
+	rm -rf build
+	rm -rf repo
 
 .PHONY: workspace
 workspace: $(PKG_WORKSPACES);
