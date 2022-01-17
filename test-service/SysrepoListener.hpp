@@ -26,6 +26,7 @@ public:
   void listen();
 
   sr_session_ctx_t *m_session = nullptr;
+  const struct ly_ctx *m_ly_ctx = nullptr;
 
   bool subscribeForAction(const char *xpath);
   void setActionValues(const char *xpath,
@@ -37,6 +38,7 @@ private:
   int subscribeToAll();
 
   static int changeTrampoline(sr_session_ctx_t *session,
+                              uint32_t sub_id,
                               const char *module,
                               const char *xpath,
                               sr_event_t event,
@@ -47,6 +49,7 @@ private:
                     sr_event_t event);
 
   static int actionTrampoline(sr_session_ctx_t *session,
+                              uint32_t sub_id,
                               const char *xpath,
                               const struct lyd_node *input,
                               sr_event_t event,
