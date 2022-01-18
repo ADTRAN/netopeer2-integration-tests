@@ -1,7 +1,13 @@
 {
     "models": [
+        "standard-models/iana-if-type.yang",
         "standard-models/ietf-system@2014-08-06.yang",
         "standard-models/ietf-hardware@2018-03-13.yang",
+        "standard-models/bbf-sub-interfaces.yang",
+        "standard-models/bbf-sub-interface-tagging.yang",
+        "standard-models/bbf-l2-forwarding.yang",
+        "standard-models/bbf-dot1q-types.yang",
+        "standard-models/bbf-if-type.yang",
         "test-models/test-referer.yang",
         "test-models/test-referee.yang",
         "test-models/test-id-ref.yang",
@@ -15,6 +21,8 @@
         "test-models/test-when.yang"
     ],
     "features": [
+        "bbf-l2-forwarding:forwarding-databases",
+        "bbf-l2-forwarding:mac-learning",
         "test-validation:enabled-leaf",
         "test-module:submodule-enabled-feature"
     ]
