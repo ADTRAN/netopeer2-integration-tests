@@ -286,6 +286,9 @@ def bulk_delete_interfaces_forwarders_single_tagged(if1, if2, vlanids):
 ###############################################################################
 
 
+SkipScaleTests = True
+
+
 BaseInterfaces = ['ethernet 0/1:1', 'ethernet 0/2:1']
 BenchMarkFile = '/var/log/benchmark.log'
 
@@ -328,6 +331,7 @@ def cleanup(mgr):
     )
 
 
+@pytest.mark.skipif(SkipScaleTests, reason='long runner')
 @pytest.mark.parametrize('vlan_count', [10, 20, 50, 100, ])
 def test_scale_single(setup_log, mgr, request, setup, cleanup, vlan_count):
     with open(BenchMarkFile, 'a') as f:
@@ -357,6 +361,7 @@ def test_scale_single(setup_log, mgr, request, setup, cleanup, vlan_count):
         f.write(' %.1f sec\n' % b.elapsed)
 
 
+@pytest.mark.skipif(SkipScaleTests, reason='long runner')
 @pytest.mark.parametrize('vlan_count', [10, 20, 50, 100, 200, 500, 1000, ])
 def test_scale_bulk(setup_log, mgr, request, setup, cleanup, vlan_count):
     with open(BenchMarkFile, 'a') as f:
@@ -384,6 +389,7 @@ def test_scale_bulk(setup_log, mgr, request, setup, cleanup, vlan_count):
         f.write(' %.1f sec\n' % b.elapsed)
 
 
+@pytest.mark.skipif(SkipScaleTests, reason='long runner')
 @pytest.mark.parametrize('vlan_count', [10, 20, 50, 100, 200, 500, 1000, ])
 def test_scale_bulk_plus_one(setup_log, mgr, request, setup, cleanup, vlan_count):
     with open(BenchMarkFile, 'a') as f:
