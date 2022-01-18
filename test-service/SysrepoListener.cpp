@@ -24,16 +24,24 @@ using std::to_string;
 class XpathVector : public std::vector<std::string>
 {
 public:
-    void walk(const struct lysc_node *node, std::function<bool(const struct lysc_node*)> pred)
+    void walk(const struct lys_node *node, std::function<bool(const struct lys_node*)> pred)
     {
-        for(const struct lysc_node *n = node; n; n=n->next)
+        for(const struct lys_node *n = node; n; n=n->next)
         {
-            for (const struct lysc_node_action *a=lysc_node_actions(n); a; a=a->next) {
-                char *path = lysc_path(&(a->node), LYSC_PATH_LOG, NULL, 0);
-                strip_dup_ns(path);
-                push_back(path);
+            if ( pred(n) ) {
+                char *path = lys_path(n, LYS_PATH_FIRST_PREFIX);
+                if ( path && !strstr(path, "{grouping}[") && !strstr(path, "{augment}[") ) {
+                    strip_dup_ns(path);
+                    push_back(path);
+                }
+                else {
+                    free(path);
+                }
+                continue;
             }
-            walk(lysc_node_child(n), pred);
+            if ( ! (n->nodetype & (LYS_LEAF | LYS_LEAFLIST | LYS_ANYDATA )) ) {
+                walk(n->child, pred);
+            }
         }
     }
 private:
@@ -145,13 +153,15 @@ void SysrepoListener::sysrepoConnect() {
 int SysrepoListener::attemptSysrepoConnect() {
   SR_TRY(sr_connect(SR_CONN_DEFAULT, &m_connection));
   SR_TRY(sr_session_start(m_connection, SR_DS_RUNNING, &m_session));
-  m_ly_ctx = sr_session_acquire_context(m_session);
   return SR_ERR_OK;
 }
   
 const struct ly_ctx *SysrepoListener::getLyCtx() const {
 
-    return m_ly_ctx;
+    if(m_session) {
+        return sr_get_context(sr_session_get_connection(m_session));
+    }
+    return nullptr;
 }
 
 std::vector<std::string> SysrepoListener::get_action_xpathes() const
@@ -161,13 +171,8 @@ std::vector<std::string> SysrepoListener::get_action_xpathes() const
     uint32_t idx = 0;
     const struct lys_module *module = nullptr;
     while( (module = ly_ctx_get_module_iter(getLyCtx(), &idx)) ) {
-        if (!module->compiled) {
-            std::cerr << "get_action_xpathes: parsed only " << module->name << "\n";
-            continue;
-        }
-        // TODO top level actions: module->compiled->rpcs
-        xpathVector.walk(module->compiled->data,
-                         [](const struct lysc_node*n){return n->nodetype==LYS_ACTION;});
+        xpathVector.walk(module->data,
+                        [](const struct lys_node*n){return n->nodetype==LYS_ACTION;});
     }
     return xpathVector;
 }
@@ -178,11 +183,7 @@ std::vector<std::string> SysrepoListener::get_config_modules() const {
     const struct lys_module *module = nullptr;
     // collect all modules that have a top-level element with config=true
     while( (module = ly_ctx_get_module_iter(getLyCtx(), &idx)) ) {
-        if (!module->compiled) {
-            std::cerr << "get_config_modules: parsed only " << module->name << "\n";
-            continue;
-        }
-        for(const struct lysc_node *n=module->compiled->data; n; n=n->next) {
+        for(const struct lys_node *n=module->data; n; n=n->next) {
             if ( n->nodetype & (LYS_CONTAINER | LYS_LIST | LYS_LEAF | LYS_LEAFLIST) ) {
                 if ( n->flags & LYS_CONFIG_W ) {
                     retvec.push_back(module->name);
@@ -206,7 +207,7 @@ int SysrepoListener::subscribeToAll() {
                                   changeTrampoline,
                                   (void*)this,
                                   0     /*priority*/,
-                                  SR_SUBSCR_ENABLED,
+                                  SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED,
                                   &m_subscription)) 
     {
       std::cerr << "Failed to subscribe to " << module << "\n"; 
@@ -214,8 +215,8 @@ int SysrepoListener::subscribeToAll() {
     else
     {
       std::cerr << "Subscribed to module " << module << "\n";
-      const struct lys_module *ly_mod = ly_ctx_get_module(getLyCtx(), module.c_str(), NULL);
-      m_module2Schema[module] = ly_mod && ly_mod->compiled ? ly_mod->compiled->data->name : "";
+      const struct lys_module *ly_mod = ly_ctx_get_module(getLyCtx(), module.c_str(), NULL, 1);
+      m_module2Schema[module] = ly_mod ? ly_mod->data->name : "";
     }
   } 
 
@@ -227,7 +228,7 @@ int SysrepoListener::subscribeToAll() {
                              &SysrepoListener::actionTrampoline,
                              this,
                              0 /*priority*/,
-                             SR_SUBSCR_DEFAULT,
+                             SR_SUBSCR_CTX_REUSE,
                              &m_subscription) != SR_ERR_OK)
     {
       std::cerr << "Failed to subscribe to " << xpath << "\n"; 
@@ -242,7 +243,6 @@ int SysrepoListener::subscribeToAll() {
 }
 
 int SysrepoListener::changeTrampoline(sr_session_ctx_t *session,
-                                      uint32_t sub_id,
                                       const char *module,
                                       const char *xpath,
                                       sr_event_t event,
@@ -260,8 +260,15 @@ int SysrepoListener::handleChanges(sr_session_ctx_t *session,
     std::cerr << "Failed to open event log file\n";
     return SR_ERR_OPERATION_FAILED;
   }
+  std::ostringstream selector;
+  if (m_module2Schema[module].empty()) {
+    selector << "/" << module << ":*";
+  }
+  else {
+    selector << "/" << module << ":" << m_module2Schema[module] << "/*";
+  }
   sr_change_iter_t *iter;
-  SR_TRY(sr_get_changes_iter(session, "//.", &iter));
+  SR_TRY(sr_get_changes_iter(session, selector.str().c_str(), &iter));
 
   events << "---\n";
   events << "event_type: " << to_string(event) << "\n";
@@ -304,7 +311,7 @@ bool SysrepoListener::subscribeForAction(const char *xpath) {
                            &SysrepoListener::actionTrampoline,
                            this,
                            0 /*priority*/,
-                           SR_SUBSCR_DEFAULT,
+                           SR_SUBSCR_CTX_REUSE,
                            &m_subscription) != SR_ERR_OK) {
     return false; 
   }
@@ -334,7 +341,6 @@ void SysrepoListener::setActionValues(const char *xpath,
 }
 
 int SysrepoListener::actionTrampoline(sr_session_ctx_t *session,
-                                      uint32_t sub_id,
                                       const char *xpath,
                                       const struct lyd_node *input,
                                       sr_event_t event,
@@ -355,6 +361,6 @@ int SysrepoListener::handleAction(sr_session_ctx_t *session, const char *xpath, 
               << schemaPath << ")\n";
     return SR_ERR_INTERNAL;
   }
-  lyd_new_term(output, output->schema->module, "action-output", values->second->values->data.string_val, 1, NULL);
+  lyd_new_output_leaf(output, lys_node_module(output->schema), "action-output", values->second->values->data.string_val);
   return SR_ERR_OK;
 }

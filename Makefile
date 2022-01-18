@@ -64,5 +64,5 @@ workspace: $(PKG_WORKSPACES);
 .PRECIOUS: $(WORKSPACE_DIR)/%
 $(WORKSPACE_DIR)/% : | $(WORKSPACE_DIR)
 	@cd $(@D) && \
-        git clone -b devel $($(@F)_GITHUB_URL) && \
+        git clone -b libyang1 $($(@F)_GITHUB_URL) && \
         cd $(@F) && echo "-------------\n$(@F) revision: $$(git rev-parse HEAD)\n-------------"

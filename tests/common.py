@@ -27,7 +27,7 @@ def connect_mgr():
         username="netconf",
         password="netconf",
         hostkey_verify=False,
-        timeout=180,
+        timeout=300,
     )
 
 def nacm_enable(on_off):
