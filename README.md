@@ -20,6 +20,9 @@ If you don't have a populated `repo` directory already, the latest dev
 versions of the Netopeer2 stack will be cloned. If you already have a
 populated `repo` directory it will remain unchanged.
 
+There are long running tests which will not run without extra options.
+Use `make test PYTEST_ARGS='-m long_runner'` to execute them.
+
 ## Directories
 
 ### `tests`
