@@ -1,4 +1,5 @@
-FROM artifactory.adtran.com/docker/mosaic-os-service-kit-ubuntu18:latest
+#FROM artifactory.adtran.com/docker/ubuntu:18.04
+FROM ubuntu:18.04
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Berlin
 
@@ -49,7 +50,8 @@ RUN \
 	eval 'export PATH=$PATH:/root/.cargo/bin' && \
 	eval 'rustc --version'
 
-RUN pip3 install setuptools-rust && \
+RUN pip3 install --upgrade pip && \
+    pip3 install setuptools-rust && \
     eval 'export PATH=$PATH:/root/.cargo/bin' && \
     pip3 install \
     ncclient \
