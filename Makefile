@@ -61,8 +61,13 @@ clean:
 .PHONY: workspace
 workspace: $(PKG_WORKSPACES);
 
+define apply_patch
+[ -e ../../patch/$(1) ] && git apply ../../patch/$(1) || true
+endef
+
 .PRECIOUS: $(WORKSPACE_DIR)/%
 $(WORKSPACE_DIR)/% : | $(WORKSPACE_DIR)
 	@cd $(@D) && \
         git clone -b devel $($(@F)_GITHUB_URL) && \
-        cd $(@F) && echo "-------------\n$(@F) revision: $$(git rev-parse HEAD)\n-------------"
+        cd $(@F) && echo "-------------\n$(@F) revision: $$(git rev-parse HEAD)\n-------------" && \
+        $(call apply_patch,$(@F))
