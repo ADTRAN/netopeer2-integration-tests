@@ -49,3 +49,22 @@ can verify events are emitted under certain stimuli.
 
 This directory contains various supporting files (scripts and
 configuration) to help launch the Netopeer2 stack.
+
+### `patch`
+
+This directory may contain patches to be applied to the source repositories
+in directory `repo` before they are built. A patch can be generated this way:
+```
+rm -rf repo
+make test-env
+# edit the source files in repo/{REPONAME}/src
+git diff >patch/{REPONAME}
+```
+The placholder {REPONAME} stands for the name of one of the source repositories
+libnetconf2, libyang, Netopeer2 or sysrepo.
+
+In order to apply the patches and to build the patched repositories use:
+```
+rm -rf repo
+make test-env
+```
