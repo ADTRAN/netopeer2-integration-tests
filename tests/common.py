@@ -414,3 +414,25 @@ def dict_to_xml(name, value, ns=NS_MAP):
 def edit_config_dict(mgr, values):
     xml = dict_to_xml("nc:config", values, NS_MAP)
     mgr.edit_config(target="running", config=xml)
+
+
+def install_module(module, searchdir='/local/yang/test-models'):
+    process_args=['sysrepoctl', '-v', '4', '-i', f'{searchdir}/{module}.yang', '-s', searchdir]
+    subprocess.check_call(process_args)
+
+
+def uninstall_module(module):
+    process_args=['sysrepoctl', '-v', '4', '-u', module]
+    subprocess.check_call(process_args)
+
+
+def enable_feature(module, feature):
+    process_args=['sysrepoctl', '-v', '4', '--enable-feature', feature, '-c', module]
+    subprocess.check_call(process_args)
+
+
+def disable_feature(module, feature):
+    process_args=['sysrepoctl', '-v', '4', '--disable-feature', feature, '-c', module]
+    subprocess.check_call(process_args)
+
+
