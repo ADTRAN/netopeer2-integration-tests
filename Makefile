@@ -62,7 +62,7 @@ clean:
 workspace: $(PKG_WORKSPACES);
 
 define apply_patch
-[ -e ../../patch/$(1) ] && git apply ../../patch/$(1) || true
+[ -e ../../patch/$(1) ] && echo "+++ applying patch $1 +++" && git apply ../../patch/$(1) || true
 endef
 
 .PRECIOUS: $(WORKSPACE_DIR)/%
