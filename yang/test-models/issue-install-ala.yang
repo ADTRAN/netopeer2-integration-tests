@@ -1,0 +1,26 @@
+module issue-install-ala {
+  namespace "urn:issue:install:ala";
+  prefix iia;
+
+  feature alarm-severity-profiles;
+  
+  typedef alarm-severity-profile-ref {
+    type leafref {
+      path 
+        "/iia:alarming/iia:alarm-severity-profiles" +
+        "/iia:alarm-severity-profile/iia:name";
+    }
+  }
+
+  container alarming {
+    container alarm-severity-profiles {
+      if-feature alarm-severity-profiles;
+      list alarm-severity-profile {
+        key name;
+        leaf name {
+          type string;
+        }
+      }
+    }    
+  }
+}

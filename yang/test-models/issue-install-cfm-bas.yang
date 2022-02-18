@@ -1,0 +1,14 @@
+submodule issue-install-cfm-bas {
+  belongs-to issue-install-cfm {
+    prefix iic;
+  }
+
+  typedef admin-name {
+    type string;
+  }
+  
+  identity name-format;
+
+  container cfm {
+  }
+}

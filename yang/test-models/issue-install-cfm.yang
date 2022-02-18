@@ -1,0 +1,8 @@
+module issue-install-cfm {
+  namespace "urn:issue:install:cfm";
+  prefix iic;
+  
+  include issue-install-cfm-bas;
+  include issue-install-cfm-ma;
+  include issue-install-cfm-mep;
+}

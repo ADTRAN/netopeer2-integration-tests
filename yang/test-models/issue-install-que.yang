@@ -1,0 +1,13 @@
+module issue-install-que {
+  namespace "urn:issue:install:que";
+  prefix iiq;
+  
+  import ietf-interfaces {
+    prefix if;
+  }
+  
+  augment "/if:interfaces/if:interface" {
+    container queues {
+    }
+  }
+}   

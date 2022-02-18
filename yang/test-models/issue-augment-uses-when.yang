@@ -1,0 +1,21 @@
+module issue-augment-uses-when {
+
+  namespace "urn:issue:augment:uses:when";
+  prefix wh;
+
+  import issue-augment-uses-when-cnt {
+    prefix wc;
+  }
+
+  import issue-augment-uses-when-grp {
+    prefix wg;
+  }
+
+  augment "/wc:my-container" {
+    
+    uses wg:my-group {
+      when "./wc:my-type = '42'";
+    }
+
+  }
+}

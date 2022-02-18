@@ -1,0 +1,11 @@
+module issue-augment-uses-when-cnt {
+
+  namespace "urn:issue:augent:uses:when:cnt";
+  prefix wc;
+
+  container my-container {
+    leaf my-type {
+      type string;
+    }
+  }
+}

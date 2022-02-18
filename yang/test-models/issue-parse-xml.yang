@@ -1,0 +1,17 @@
+module issue-parse-xml {
+    namespace "urn:issue:parse:xml";
+    prefix ipx;
+
+    identity color;
+    identity red   { base color; }
+    identity green { base color; }
+    identity blue  { base color; }
+
+    container config {
+        leaf color-leaf {
+            type identityref {
+                base color;
+            }
+        }
+    }
+}

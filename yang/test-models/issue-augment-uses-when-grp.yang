@@ -1,0 +1,11 @@
+module issue-augment-uses-when-grp {
+
+  namespace "urn:issue:augment:uses:when:grp";
+  prefix wg;
+
+  grouping my-group {
+    leaf my-leaf {
+      type string;
+    }
+  }
+}

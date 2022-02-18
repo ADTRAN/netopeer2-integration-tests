@@ -18,7 +18,10 @@
         "test-models/test-candidate-config.yang",
         "test-models/test-module.yang",
         "test-models/test-validation.yang",
-        "test-models/test-when.yang"
+        "test-models/test-when.yang",
+        "test-models/issue-error-response.yang",
+        "test-models/issue-parse-xml.yang",
+        "test-models/issue-namespace-aug.yang"
     ],
     "features": [
         "bbf-l2-forwarding:forwarding-databases",

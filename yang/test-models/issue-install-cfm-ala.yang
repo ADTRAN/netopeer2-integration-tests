@@ -1,0 +1,18 @@
+module issue-install-cfm-ala {
+  namespace "urn:issue:install:cfm:ala";
+  prefix iica;
+
+  import issue-install-ala {
+    prefix iia;
+  }
+  import issue-install-cfm {
+    prefix iic;
+  }
+
+  augment "/iic:cfm" {
+    leaf alarm-severity-profile {
+      if-feature iia:alarm-severity-profiles;
+      type iia:alarm-severity-profile-ref ;
+    }        
+  }
+}

@@ -1,0 +1,43 @@
+submodule issue-install-cfm-mep {
+  belongs-to issue-install-cfm {
+    prefix iic;
+  }
+
+  /* import was necessary in the original schema
+     without it the import is successful */
+  import ietf-interfaces {
+    prefix if;
+  }
+
+  typedef mp-direction {
+    type enumeration {
+      enum down;
+      enum up;
+    }
+  }
+  
+  typedef mep-id {
+    type uint16 {
+      range "1..8191";
+    }
+  }
+
+  grouping mep-config-parameters {
+    leaf mep-id {
+      type mep-id;
+    }
+    leaf direction {
+      type mp-direction;
+      mandatory true;
+    }
+  }
+  
+  augment "/iic:cfm/iic:associations/iic:association" {
+    container meps {
+      list mep {
+        key mep-id;
+        uses mep-config-parameters;          
+      }    
+    }
+  }
+}

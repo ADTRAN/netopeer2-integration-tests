@@ -1,0 +1,42 @@
+submodule issue-install-cfm-ma {
+  belongs-to issue-install-cfm {
+    prefix iic;
+  }
+
+  grouping maintenance-association-name {
+    leaf ma-name-format {
+      type identityref {
+        base name-format;
+      }
+    }
+    choice ma-name {
+      case ma-name-char-string {
+        leaf ma-name-char-string {
+          when "../ma-name-format="
+             + "'adtn-oam-ecfm:name-format-char-string'" {
+          }
+          type string;
+        }
+      }
+    }
+  }
+  
+  grouping ma-parameters {
+    leaf admin-name {
+      type admin-name;
+    }
+    uses maintenance-association-name;
+    leaf-list ma-mep-id {
+      type mep-id;
+    }
+  }
+
+  augment "/iic:cfm" {
+    container associations {
+      list association {
+        key admin-name;
+        uses ma-parameters;  
+      }
+    }
+  }
+}

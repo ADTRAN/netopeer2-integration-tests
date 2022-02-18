@@ -1,0 +1,20 @@
+module issue-namespace-aug {
+  namespace "urn:issue:namespace:aug";
+  prefix insa;
+  
+  import issue-namespace {
+    prefix ins;
+  }
+
+  identity color;
+  identity red   { base color; }
+  identity green { base color; }
+  identity blue  { base color; }
+
+  augment "/ins:root" {
+    leaf my-color {
+      type identityref { base color; }
+    }
+  }
+}
+

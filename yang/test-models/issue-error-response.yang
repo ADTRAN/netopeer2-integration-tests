@@ -1,0 +1,16 @@
+module issue-error-response {
+    namespace "urn:issue:error:response";
+    prefix ier;
+
+    typedef crypt-hash {
+        type string {
+            pattern '$0$.*';
+        }
+    }
+
+    container config {
+        leaf password {
+            type crypt-hash;
+        }
+    }
+}

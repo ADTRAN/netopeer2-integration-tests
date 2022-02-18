@@ -1,0 +1,16 @@
+module issue-namespace {
+  namespace "urn:issue:namespace";
+  prefix ins;
+  
+  identity char;
+  identity a { base char; }
+  identity b { base char; }
+  identity c { base char; }
+
+  container root {
+    leaf my-char {
+      type identityref { base char; }
+    }
+  }
+}
+
