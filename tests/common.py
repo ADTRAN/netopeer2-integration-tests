@@ -1,5 +1,6 @@
 import os
 import time
+import string
 import subprocess
 from lxml import etree
 
@@ -414,6 +415,82 @@ def dict_to_xml(name, value, ns=NS_MAP):
 def edit_config_dict(mgr, values):
     xml = dict_to_xml("nc:config", values, NS_MAP)
     mgr.edit_config(target="running", config=xml)
+
+
+def etree_diff(etela, etelb, ret_on_1st_diff=True):
+
+    def _etree_diff(ela, elb, path, msgs):
+
+        def _sort_key(elm):
+            return elm.tag
+
+        if ela.attrib != elb.attrib:
+            msgs.append(f'element attributes differ: {path}')
+            msgs.append(f'    left:  {str(ela.attrib)}')
+            msgs.append(f'    right: {str(elb.attrib)}')
+            if ret_on_1st_diff:
+                return
+        elatxt = ela.text.strip(string.whitespace) if ela.text is not None else ""
+        elbtxt = elb.text.strip(string.whitespace) if elb.text is not None else ""
+        if elatxt != elbtxt:
+            msgs.append(f'element values differ: {path}')
+            msgs.append(f'    left:  {elatxt}')
+            msgs.append(f'    right: {elbtxt}')
+            if ret_on_1st_diff:
+                return
+        elasubs = list(ela)
+        elasubs.sort(key=_sort_key)
+        elbsubs = list(elb)
+        elbsubs.sort(key=_sort_key)
+        ixa = ixb = 0
+        while True:
+            if ixa < len(elasubs) and ixb < len(elbsubs):
+                elatag = elasubs[ixa].tag
+                elbtag = elbsubs[ixb].tag
+                if elatag == elbtag:
+                    _etree_diff(elasubs[ixa], elbsubs[ixb], path+'/'+elatag, msgs)
+                    ixa += 1
+                    ixb += 1
+                    if len(msgs) > 0 and ret_on_1st_diff:
+                        return
+                elif elatag < elbtag:
+                    ixa += 1
+                    msgs.append(f'child elements differ: {path}')
+                    msgs.append(f'    left only:  {elatag}')
+                    if ret_on_1st_diff:
+                        return
+                else: # elatag > elbtag
+                    ixb += 1
+                    msgs.append(f'child elements differ: {path}')
+                    msgs.append(f'    right only: {elbtag}')
+                    if ret_on_1st_diff:
+                        return
+            elif ixa < len(elasubs):
+                ixa += 1
+                msgs.append(f'child elements differ: {path}')
+                msgs.append(f'    left only:  {elatag}')
+                if ret_on_1st_diff:
+                    return
+            elif ixb < len(elbsubs):
+                ixb += 1
+                msgs.append(f'child elements differ: {path}')
+                msgs.append(f'    right only: {elbtag}')
+                if ret_on_1st_diff:
+                    return
+            else:
+                break
+
+    assert etela is not None and (isinstance(etela, etree._Element) or isinstance(etela, etree._ElementTree))
+    assert etelb is not None and (isinstance(etelb, etree._Element) or isinstance(etelb, etree._ElementTree))
+    if isinstance(etela, etree._ElementTree):
+        etela = etela.getroot()
+    if isinstance(etelb, etree._ElementTree):
+        etelb = etelb.getroot()
+    if etela.tag != etelb.tag:
+        return [f'root elements differ: /{etela.tag} != /{etelb.tag}']
+    ret = []
+    _etree_diff(etela, etelb, f'/{etela.tag}', ret)
+    return ret
 
 
 def install_module(module, searchdir='/local/yang/test-models'):
