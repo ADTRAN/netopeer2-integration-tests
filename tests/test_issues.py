@@ -5,6 +5,7 @@ from common import (
     enable_feature,
     disable_feature,
     netconf_logger,
+    etree_diff,
 )
 from ncclient.operations.rpc import RPCError
 from lxml import etree
@@ -66,10 +67,17 @@ FreeStyleXml5 = """
     </config>
 """
 
-IssueNamespace = """
+IssueNamespaceWant = """
     <root xmlns="urn:issue:namespace">
         <my-char>a</my-char>
         <my-color xmlns="urn:issue:namespace:aug">green</my-color>
+    </root>
+"""
+
+IssueNamespaceHave = """
+    <root xmlns="urn:issue:namespace">
+        <my-char xmlns:ins="urn:issue:namespace">ins:a</my-char>
+        <my-color xmlns="urn:issue:namespace:aug" xmlns:insa="urn:issue:namespace:aug">insa:green</my-color>
     </root>
 """
 
@@ -210,21 +218,24 @@ def test_issue_parse_xml(mgr, request):
     assert False
 
 
-@pytest.mark.xfail(reason='issue libyang#1792 not yet fixed')
 def test_issue_namespace(mgr, request):
     netconf_logger.start(request)
     mgr.edit_config(
         target='running',
-        config=prepend_config(IssueNamespace)
+        config=prepend_config(IssueNamespaceWant)
     )
-    reply = mgr.get_config(
+    reply_got = mgr.get_config(
         source='running',
         filter=('subtree', '<root xmlns="urn:issue:namespace"/>')
     ).data_ele.find('{urn:issue:namespace}root')
-    request = etree.fromstring(IssueNamespace)
+    reply_want = etree.fromstring(IssueNamespaceWant)
+    reply_have = etree.fromstring(IssueNamespaceHave)
     netconf_logger.stop(request)
-    print('REQUEST:', etree.tostring(request, pretty_print=True).decode('UTF-8'))
-    print('REPLY:  ', etree.tostring(reply, pretty_print=True).decode('UTF-8'))
-    assert reply == request
+    print('REQUEST:', etree.tostring(reply_want, pretty_print=True).decode('UTF-8'))
+    print('REPLY:  ', etree.tostring(reply_got, pretty_print=True).decode('UTF-8'))
+    diff = etree_diff(reply_got, reply_want)
+    assert len(diff) > 0
+    diff = etree_diff(reply_got, reply_have)
+    assert len(diff) == 0
 
 
