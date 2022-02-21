@@ -95,7 +95,7 @@ def test_issue_augment_uses_when():
     uninstall_module('issue-augment-uses-when-cnt')
 
 
-@pytest.mark.xfail(reason='issue libyang#1795 not yet fixed')
+#@pytest.mark.xfail(reason='issue libyang#1795 not yet fixed')
 def test_issue_install():
     install_module('issue-install-cfm-ala')
     install_module('issue-install-que')
