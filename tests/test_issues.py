@@ -179,6 +179,27 @@ def test_issue_error_response(mgr, request):
     netconf_logger.stop(request)
 
 
+def test_issue_namespace(mgr, request):
+    netconf_logger.start(request)
+    mgr.edit_config(
+        target='running',
+        config=prepend_config(IssueNamespaceWant)
+    )
+    reply_got = mgr.get_config(
+        source='running',
+        filter=('subtree', '<root xmlns="urn:issue:namespace"/>')
+    ).data_ele.find('{urn:issue:namespace}root')
+    reply_want = etree.fromstring(IssueNamespaceWant)
+    reply_have = etree.fromstring(IssueNamespaceHave)
+    netconf_logger.stop(request)
+    print('REQUEST:', etree.tostring(reply_want, pretty_print=True).decode('UTF-8'))
+    print('REPLY:  ', etree.tostring(reply_got, pretty_print=True).decode('UTF-8'))
+    diff = etree_diff(reply_got, reply_want)
+    assert len(diff) > 0
+    diff = etree_diff(reply_got, reply_have)
+    assert len(diff) == 0
+
+
 @pytest.mark.xfail(reason='no issue yet: when parsing XML values are not stripped')
 def test_issue_parse_xml(mgr, request):
     netconf_logger.start(request)
@@ -216,26 +237,5 @@ def test_issue_parse_xml(mgr, request):
         print('REPLY:', etree.tostring(e.xml, pretty_print=True).decode('UTF-8'))
     netconf_logger.stop(request)
     assert False
-
-
-def test_issue_namespace(mgr, request):
-    netconf_logger.start(request)
-    mgr.edit_config(
-        target='running',
-        config=prepend_config(IssueNamespaceWant)
-    )
-    reply_got = mgr.get_config(
-        source='running',
-        filter=('subtree', '<root xmlns="urn:issue:namespace"/>')
-    ).data_ele.find('{urn:issue:namespace}root')
-    reply_want = etree.fromstring(IssueNamespaceWant)
-    reply_have = etree.fromstring(IssueNamespaceHave)
-    netconf_logger.stop(request)
-    print('REQUEST:', etree.tostring(reply_want, pretty_print=True).decode('UTF-8'))
-    print('REPLY:  ', etree.tostring(reply_got, pretty_print=True).decode('UTF-8'))
-    diff = etree_diff(reply_got, reply_want)
-    assert len(diff) > 0
-    diff = etree_diff(reply_got, reply_have)
-    assert len(diff) == 0
 
 

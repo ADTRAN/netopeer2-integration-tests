@@ -1,8 +1,8 @@
 diff --git a/src/main.c b/src/main.c
-index 6ebe6bc..4067490 100644
+index 4e1cd44..6637a81 100644
 --- a/src/main.c
 +++ b/src/main.c
-@@ -279,6 +279,7 @@ np2srv_err_reply_sr(const sr_error_info_t *err_info)
+@@ -283,6 +283,7 @@ np2srv_err_reply_sr(const sr_error_info_t *err_info)
      struct nc_server_reply *reply = NULL;
      struct lyd_node *e;
      const struct ly_ctx *ly_ctx;
@@ -10,7 +10,7 @@ index 6ebe6bc..4067490 100644
      size_t i;
  
      /* try to find a NETCONF error */
-@@ -300,9 +301,25 @@ np2srv_err_reply_sr(const sr_error_info_t *err_info)
+@@ -304,9 +305,30 @@ np2srv_err_reply_sr(const sr_error_info_t *err_info)
  
      ly_ctx = sr_acquire_context(np2srv.sr_conn);
      for (i = 0; i < err_info->err_count; ++i) {
@@ -25,10 +25,15 @@ index 6ebe6bc..4067490 100644
 +        else if (strstr(msg, "to be deleted does not exist.")) {
 +            e = nc_err(ly_ctx, NC_ERR_DATA_MISSING, NC_ERR_TYPE_APP);
 +        }
-+        else if (strstr(msg, "does not satisfy required constraints.")) {
++        else if (strstr(msg, "Unsatisfied pattern")
++                 || strstr(msg, "Unsatisfied length")
++                 || strstr(msg, "Unsatisfied range")
++                 || strstr(msg, "Invalid value")) {
 +            e = nc_err(ly_ctx, NC_ERR_INVALID_VALUE, NC_ERR_TYPE_APP);
 +        }
-+        else if (strstr(msg, "Opaque (invalid) node")) {
++        else if ((strstr(msg, "Node") == msg && strstr(msg, "not found")) 
++                 || strstr(msg, "Unexpected opaque schema node")
++                 || strstr(msg, "Unexpected valid opaque node")) {
 +            e = nc_err(ly_ctx, NC_ERR_UNKNOWN_ELEM, NC_ERR_TYPE_APP);
 +        }
 +        else {
