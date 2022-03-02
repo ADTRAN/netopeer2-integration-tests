@@ -493,8 +493,8 @@ def etree_diff(etela, etelb, ret_on_1st_diff=True):
     return ret
 
 
-def install_module(module, searchdir='/local/yang/test-models'):
-    process_args=['sysrepoctl', '-v', '4', '-i', f'{searchdir}/{module}.yang', '-s', searchdir]
+def install_module(module, searchdir='/local/yang'):
+    process_args=['sysrepoctl', '-v', '4', '-i', f'{searchdir}/test-models/{module}.yang', '-s', searchdir]
     subprocess.check_call(process_args)
 
 
@@ -511,5 +511,10 @@ def enable_feature(module, feature):
 def disable_feature(module, feature):
     process_args=['sysrepoctl', '-v', '4', '--disable-feature', feature, '-c', module]
     subprocess.check_call(process_args)
+
+
+def yanglint_format(module, fmt_from, fmt_to):
+    process_args=['yanglint', '-f', fmt_to, f'/local/yang/test-models/{module}.{fmt_from}']
+    return subprocess.check_output(process_args)
 
 

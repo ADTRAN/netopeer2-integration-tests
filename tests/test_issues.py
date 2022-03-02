@@ -4,6 +4,7 @@ from common import (
     uninstall_module, 
     enable_feature,
     disable_feature,
+    yanglint_format,
     netconf_logger,
     etree_diff,
 )
@@ -95,7 +96,6 @@ def test_issue_augment_uses_when():
     uninstall_module('issue-augment-uses-when-cnt')
 
 
-#@pytest.mark.xfail(reason='issue libyang#1795 not yet fixed')
 def test_issue_install():
     install_module('issue-install-cfm-ala')
     install_module('issue-install-que')
@@ -119,6 +119,11 @@ def test_issue_if_feature():
     uninstall_module('issue-if-feature-grp')
     uninstall_module('issue-if-feature-tm')
     uninstall_module('issue-if-feature')
+
+
+def test_issue_print_yin():
+    yin = yanglint_format('issue-print-yin', 'yang', 'yin')
+    et = etree.fromstring(yin)
 
 
 def test_issue_error_response(mgr, request):

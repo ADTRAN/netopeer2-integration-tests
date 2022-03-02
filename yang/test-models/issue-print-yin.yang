@@ -1,0 +1,16 @@
+module issue-print-yin {
+  namespace "urn:issue:print:yin";
+  prefix ipy;
+
+  list read-only-no-key {
+    config false;
+    description
+      "Read only list.";
+
+    leaf foo {
+      type string;
+      description
+        "Read only value foo.";
+    }
+  }
+}
