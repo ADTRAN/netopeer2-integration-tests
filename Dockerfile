@@ -19,6 +19,8 @@ RUN \
 	libcmocka-dev \
 	libcurl4-openssl-dev \
 	libev-dev \
+	libpam0g-dev \
+	libpam-modules \
 	libpcre2-dev \
 	libpcre3-dev \
 	libprotobuf-c-dev \
