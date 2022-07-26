@@ -1,2 +1,2 @@
 #!/bin/bash
-exec /usr/bin/netopeer2-server -d -v 2 -t 180
+exec /usr/sbin/netopeer2-server -d -v 2 -t 180
