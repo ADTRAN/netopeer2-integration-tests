@@ -45,6 +45,7 @@ def test_create_resolved_data_and_removing_referenced_data_is_error(mgr, cleanup
 
 
 def edit_referee(mgr, operation, name, value):
+    val_xml = '<value>{val}</value>'.format(val=value) if operation != 'delete' else ''
     mgr.edit_config(
         target="running",
         config="""
@@ -52,17 +53,18 @@ def edit_referee(mgr, operation, name, value):
       <contain-1 xmlns="http://example.com/netopeer2-integration-tests/test-referee">
         <data nc:operation="{op}">
           <name>{name}</name>
-          <value>{value}</value>
+          {value}
         </data>
       </contain-1>
     </config>
     """.format(
-            name=name, value=value, op=operation
+            name=name, value=val_xml, op=operation
         ),
     )
 
 
 def edit_referer(mgr, operation, name, value):
+    val_xml = '<another-value>{val}</another-value>'.format(val=value) if operation != 'delete' else ''
     mgr.edit_config(
         target="running",
         config="""
@@ -70,12 +72,12 @@ def edit_referer(mgr, operation, name, value):
       <contain-2 xmlns="http://example.com/netopeer2-integration-tests/test-referer">
         <data-ref nc:operation="{op}">
           <name>{name}</name>
-          <another-value>{value}</another-value>
+          {value}
         </data-ref>
       </contain-2>
     </config>
     """.format(
-            name=name, value=value, op=operation
+            name=name, value=val_xml, op=operation
         ),
     )
 

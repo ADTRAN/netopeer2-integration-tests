@@ -18,7 +18,6 @@ def test_capabilities(mgr):
     assert set(mgr.server_capabilities) == capabilities
 
 
-@pytest.mark.xfail(message='to be investigated')
 def test_sessions(mgr):
     """
     Verifies that the current session appears in the session list
@@ -32,7 +31,7 @@ def test_sessions(mgr):
     transport = session.xpath("./nc-mon:transport", namespaces=NS_MAP)[0].text
     username = session.xpath("./nc-mon:username", namespaces=NS_MAP)[0].text
 
-    assert transport == "netconf-ssh"
+    assert transport == "ncm:netconf-ssh"
     assert username == "netconf"
 
 

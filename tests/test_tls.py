@@ -266,7 +266,7 @@ def test_tls_fingerprint_cascade(mgr, temp_chains, cleanup):
     )
 
 
-@pytest.mark.xfail(message='to be investigated')
+@pytest.mark.skip(reason='to be investigated')
 def test_tls_client_missing_server_intermediate(mgr, temp_chains, cleanup):
     """Verify that when the client only has the server's root CA then the
        server's intermediate CA can be negotiated during the connection"""

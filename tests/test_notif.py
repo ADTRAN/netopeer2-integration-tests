@@ -197,16 +197,15 @@ def test_service_generated_notification(mgr, notification_cleanup):
     assert results[0].text == "Notification Message"
 
 
-@pytest.mark.xfail(message='to be investigated')
 def test_embedded_notification_container(mgr, notification_cleanup):
     mgr.dispatch(
         to_ele(
             """
             <create-subscription xmlns="urn:ietf:params:xml:ns:netconf:notification:1.0">
               <filter>
-                <container-notification-string-changed 
-                    xmlns="urn:ietf:params:xml:ns:yang:test-notifications" 
-                />
+                <notification-from-container xmlns="http://www.example.com/ns/yang/test-notifications">
+                  <container-notification-string-changed/>
+                </notification-from-container>
               </filter>
             </create-subscription>
             """
@@ -233,14 +232,17 @@ def test_embedded_notification_container(mgr, notification_cleanup):
     assert get_test_notification_container_notification_string(mgr) == "Not Found"
 
 
-@pytest.mark.xfail(message='to be investigated')
 def test_embedded_notification_list_one_item(mgr, notification_cleanup):
     mgr.dispatch(
         to_ele(
             """
             <create-subscription xmlns="urn:ietf:params:xml:ns:netconf:notification:1.0">
               <filter>
-                <list-foo-changed xmlns="urn:ietf:params:xml:ns:yang:test-notifications" />
+                <notification-from-list xmlns="http://www.example.com/ns/yang/test-notifications">
+                  <notification-from-list>
+                    <list-foo-changed/>
+                  </notification-from-list>
+                </notification-from-list>
               </filter>
             </create-subscription>
             """
@@ -271,14 +273,17 @@ def test_embedded_notification_list_one_item(mgr, notification_cleanup):
     assert get_notification_list(mgr) == {}
 
 
-@pytest.mark.xfail(message='to be investigated')
 def test_embedded_notification_list_two_items(mgr, notification_cleanup):
     mgr.dispatch(
         to_ele(
             """
             <create-subscription xmlns="urn:ietf:params:xml:ns:netconf:notification:1.0">
               <filter>
-                <list-foo-changed xmlns="urn:ietf:params:xml:ns:yang:test-notifications" />
+                <notification-from-list xmlns="http://www.example.com/ns/yang/test-notifications">
+                  <notification-from-list>
+                    <list-foo-changed/>
+                  </notification-from-list>
+                </notification-from-list>
               </filter>
             </create-subscription>
             """
@@ -327,16 +332,17 @@ def test_embedded_notification_list_two_items(mgr, notification_cleanup):
     assert get_notification_list(mgr) == {}
 
 
-@pytest.mark.xfail(message='to be investigated')
 def test_embedded_notification_list_insert_and_delete(mgr, notification_cleanup):
     mgr.dispatch(
         to_ele(
             """
             <create-subscription xmlns="urn:ietf:params:xml:ns:netconf:notification:1.0">
               <filter>
-                <list-foo-changed 
-                    xmlns="urn:ietf:params:xml:ns:yang:test-service-test-notification" 
-                />
+                <notification-from-list xmlns="http://www.example.com/ns/yang/test-notifications">
+                  <notification-from-list>
+                    <list-foo-changed/>
+                  </notification-from-list>
+                </notification-from-list>
               </filter>
             </create-subscription>
             """
@@ -457,14 +463,19 @@ def test_embedded_notification_list_insert_and_delete(mgr, notification_cleanup)
         )
 
 
-@pytest.mark.xfail(message='to be investigated')
 def test_embedded_notification_list_in_list(mgr, notification_cleanup):
     mgr.dispatch(
         to_ele(
             """
             <create-subscription xmlns="urn:ietf:params:xml:ns:netconf:notification:1.0">
               <filter>
-                <embedded-foo-changed xmlns="urn:ietf:params:xml:ns:yang:test-notifications" />
+                <notification-from-list xmlns="http://www.example.com/ns/yang/test-notifications">
+                  <notification-from-list>
+                    <embedded-list>
+                      <embedded-foo-changed/>
+                    </embedded-list>
+                  </notification-from-list>
+                </notification-from-list>
               </filter>
             </create-subscription>
             """
