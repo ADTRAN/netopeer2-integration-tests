@@ -17,4 +17,4 @@ for model in manifest['models']:
 
 for feature in manifest['features']:
     parts = feature.split(':')
-    run(['sysrepoctl', '--enable-feature', parts[1], '--change', parts[0]])
+    run(['sysrepoctl', '--change', parts[0], '--enable-feature', parts[1]])
